@@ -1,18 +1,23 @@
 import React, { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { backend_url } from '../../../server'
 import styles from '../../../styles/styles'
 import axios from "axios"
 import { server } from '../../../server'
 import { useParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import { getAllProductsShop } from '../../../redux/actions/product'
 
 
 const ShopInfo = ({isOwner}) => {
-    // const { seller } = useSelector((state) => state.seller)
+    const { products } = useSelector((state) => state.products)
+    console.log("ini adalah product",products)
+    const { seller } = useSelector((state) => state.seller)
     // console.log("seller",seller)
     const [data, setData] = useState({})
     console.log("shopInfo", data)
     const [loading, setLoading] = useState(false)
+    const dispatch = useDispatch()
     const {id} = useParams()
     const logoutHandler = () => {
         axios.get(`${server}/shop/logout`,{
@@ -21,7 +26,9 @@ const ShopInfo = ({isOwner}) => {
         window.location.reload()
     }
 
+
     useEffect(()=> {
+        dispatch(getAllProductsShop(id))
         setLoading(true)
         axios.get(`${server}/shop/get-shop-info/${id}`).then((res) => {
             setData(res.data.shop)
@@ -30,6 +37,11 @@ const ShopInfo = ({isOwner}) => {
             setLoading(false)
         })
     },[])
+
+    const TotalReviewsLength = products && products.length > 0 ? products.reduce((acc, product) => acc + (product.reviews ? product.reviews.length : 0), 0) : 0;
+
+const totalRatings = products && products.length > 0 ? products.reduce((acc, product) => acc + (product.reviews ? product.reviews.reduce((sum, review) => sum + review.rating, 0) : 0), 0) : 0;
+const averageRating = totalRatings/TotalReviewsLength
 
   return (
     <div className='w-full py-5'>
@@ -56,13 +68,13 @@ const ShopInfo = ({isOwner}) => {
             <div className='p-3'>
                 <h5 className='font-[600]'>Total Products</h5>
                 <h4 className='text-[#000000a6]'>
-                    10
+                    {products && products?.length}
                 </h4>
             </div>
             <div className='p-3'>
                 <h5 className='font-[600]'>Shop Ratings</h5>
                 <h4 className='text-[#000000a6]'>
-                    4/5
+                    {averageRating}
                 </h4>
             </div>
             <div className='p-3'>
@@ -74,9 +86,11 @@ const ShopInfo = ({isOwner}) => {
             {
                 isOwner && (
                     <div className="py-3 px-4">
-                        <div className={`${styles.button} !w-full !h-[42px] !rounded-[5px]`}>
-                            <span className='text-white'>Edit Shop</span>
-                        </div>
+                        <Link to="/shop/settings">
+                            <div className={`${styles.button} !w-full !h-[42px] !rounded-[5px]`}>
+                                <span className='text-white'>Edit Shop</span>
+                            </div>
+                        </Link>
                         <div className={`${styles.button} !w-full !h-[42px] !rounded-[5px]`}
                         onClick={logoutHandler}
                         >

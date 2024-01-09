@@ -1,6 +1,11 @@
 const mongoose = require("mongoose")
 
 const productSchema = new mongoose.Schema({
+    productId:{
+        type:String,
+        default: mongoose.Types.ObjectId,
+        unique: true
+    },
     name:{
         type: String,
         // required: [true, "Please enter your product name!"]
@@ -12,6 +17,9 @@ const productSchema = new mongoose.Schema({
     category:{
         type: String,
         // required: [true, "Please enter your product category!"]
+    },
+    eventId:{
+        type: Object,
     },
     tags:{
         type: String,
@@ -32,8 +40,33 @@ const productSchema = new mongoose.Schema({
         secure_url: String,
         public_id:String
     }],
+
+    reviews:[
+        {
+            user:{
+                type:Object,
+            },
+            rating:{
+                type: Number
+            },
+            comment:{
+                type:String
+            },
+            productId:{
+                type: String
+            },
+            createdAt:{
+                type: Date,
+                default: Date.now()
+            }
+        }
+    ],
+    ratings:{
+        type: Number
+    },
     shopId:{
         type: String,
+
         // required: true
     },
     shop:{

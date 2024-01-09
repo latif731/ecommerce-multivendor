@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import logo from "../../assets/logo-logo1.png"
 import {useSelector, useDispatch} from "react-redux"
 import { backend_url } from '../../server'
 import visa from "../../assets/visa.png"
 import { Link } from 'react-router-dom'
 import { server } from '../../server'
-import {MdOutlineTrackChanges} from "react-icons/md"
+import {MdOutlineTrackChanges, MdTrackChanges} from "react-icons/md"
 import { AiOutlineArrowRight, AiOutlineCamera, AiOutlineDelete } from 'react-icons/ai'
 import styles from '../../styles/styles'
 import { DataGrid, GridValueGetterParams } from '@mui/x-data-grid';
@@ -13,14 +13,20 @@ import { DataGrid, GridValueGetterParams } from '@mui/x-data-grid';
 import Button from '@mui/material/Button';
 import axios from "axios"
 import {toast} from "react-toastify"
-import { updateUserInformation } from '../../redux/actions/user'
+import { updateUserInformation, updateUserAddress, deleteUserAddress } from '../../redux/actions/user'
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai'
 import { loadUser } from '../../redux/actions/user'
+import { RxCross1 } from 'react-icons/rx'
+import {Country, State, City} from "country-state-city"
+import { getAllOrdersOfUser } from '../../redux/actions/order'
+import "./row.css"
 
 
 const ProfileContent = ({active}) => {
-  const {isAuthenticated, user, loading} = useSelector((state) => state.user)
-  console.log("profile",user)
+  const {orders} = useSelector((state) => state.order)
+  const {isAuthenticated, user, loading,error, successMessage} = useSelector((state) => state.user)
+  // console.log("profile",user)
+
 //   const user = [
 //     {
 //         name:"latif",
@@ -30,65 +36,93 @@ const ProfileContent = ({active}) => {
 //     }
 // ]
   const [name, setName] = useState(user && user.name)
-  console.log(name)
+  // console.log(name)
   const [email, setEmail] = useState(user && user.email)
-  const [phoneNumber, setPhoneNumber] = useState(user && user.name)
+  const [phoneNumber, setPhoneNumber] = useState(user && user.phoneNumber)
   const [zipCode, setZipCode] = useState() 
   const [firstAddress, setFirstAddress] = useState() 
   const [secondAddress, setSecondAddress] = useState() 
   const [password, setPassword] = useState("");
   const [avatar, setAvatar] = useState(null)
-  console.log("ini avatar di profileContent",avatar)
+  // console.log("ini avatar di profileContent",avatar)
   const dispatch = useDispatch()
   const [visible, setVisible]= useState(false)
-  const [previewImage, setPreviewImage] = useState(user.avatar.url || "")
+  const [previewImage, setPreviewImage] = useState(user?.avatar?.url || "")
+  // console.log(previewImage)
+  const [avatarChanged, setAvatarChanged] = useState(false);
 
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      dispatch({ type: "clearErrors" });
+    }
+    if (successMessage) {
+      toast.success(successMessage);
+      dispatch({ type: "clearMessages" });
+    }
+  }, [error,successMessage])
+  
 
-  const handleSubmit = (e) => {
+  const Submit = (e) => {
     e.preventDefault()
-    console.log("Submitting", name, email,phoneNumber, password)
+    if(!password){
+      toast.error("Please provide your password");
+      return 
+    }
+    // console.log("Submitting", name, email,phoneNumber, password)
     dispatch(updateUserInformation(name, email, phoneNumber, password))
+    if(avatarChanged && avatar) {
+      axios
+      .put(
+        `${server}/user/update-avatar`,
+        { avatar },
+        {
+          withCredentials: true,
+        }
+      )
+      .then((response) => {
+        dispatch(loadUser())
+        toast.success("Avatar updated successfully!", {
+          autoClose: 5000
+        });
+        
+        // Wait for a short duration before reloading the page
+        setTimeout(() => {
+          window.location.reload();
+        }, 5000); 
+      })
+      .catch((error) => {
+        toast.error(error);
+      });
+    }
   }
 
-  // const handleImages = async (e) => {
-  //   const reader = new FileReader();
 
-  //   reader.onload = () => {
-  //     if (reader.readyState === 2) {
-  //       setAvatar(reader.result);
-  //       axios
-  //         .put(
-  //           `${server}/user/update-avatar`,
-  //           { avatar: reader.result },
-  //           {
-  //             withCredentials: true,
-  //           }
-  //         )
-  //         .then((response) => {
-  //           dispatch(loadUser());
-  //           toast.success("avatar updated successfully!");
-  //         })
-  //         .catch((error) => {
-  //           toast.error(error);
-  //         });
-  //     }
-  //   };
-
-  //   reader.readAsDataURL(e.target.files[0]);
-  // }
-
-// console.log(handleSubmit)
-
-const handleImages = async (e) => {
+const handleImages = async(e) => {
   const file = e.target.files[0]
-  setAvatar(file)
   if(file){
     const imageUrl = URL.createObjectURL(file);
-    setPreviewImage(imageUrl)
-  }else {
-    setPreviewImage(user.avatar.url || "")
+        setPreviewImage(imageUrl)
+        const reader = new FileReader()
+      
+        reader.onload = () => {
+          if(reader.readyState === 2){
+              setAvatar(reader.result);
+              setAvatarChanged(true)
+            }
+          }
+      reader.readAsDataURL(e.target.files[0]);
+  }else{
+    setPreviewImage(user?.avatar?.url || "")
+    setAvatar(null)
+    setAvatarChanged(false)
   }
-} 
+
+  }
+
+
+
+
   return (
     <div className='w-full '>
       {/* profile page */}
@@ -118,7 +152,7 @@ const handleImages = async (e) => {
           </div>
             <div className='w-full px-10 py-10'>
               <form
-              onSubmit={handleSubmit}
+              onSubmit={Submit}
               aria-required={true}
               >
                 <div className='w-full flex pb-3'>
@@ -252,53 +286,49 @@ const handleImages = async (e) => {
 }
 
 const AllOrders = () => {
-  const orders = [
-    {
-      _id:"7463hvbfbhfbrtr28820221",
-      orderItems:[
-        {
-          name:"Iphone 14 pro max"
-        }
-      ],
-      totalPrice: 120,
-      orderStatus: "Processing"
-    }
-]
+  const { orders } = useSelector((state) => state.order);
+  const {user} = useSelector((state) => state.user)
+  const dispatch = useDispatch()
 
+  useEffect(() => {
+    dispatch(getAllOrdersOfUser(user._id))
+  }, [])
+
+  
 
   const columns = [
-    {field:"id", headerName:"Order ID", minWidth: 150, flex:0.7},
+    {field:"id", headerName:"Order ID", minWidth: 50, flex:0.2},
     {
       field:"status",
       headerName: "Status",
-      minWidth: 130,
+      minWidth: 50,
       valueGetter: (params: GridValueGetterParams) => 
-        `${params.row.status}`
+        `${params?.row?.status}`
     },
     {
       field:"itemQty",
       headerName:"items Qty",
       type:"number",
-      minWidth:130,
-      flex:0.7
+      minWidth:50,
+      flex:0.2
     },
     {
       field:"total",
       headerName:"Total",
       type:"number",
-      minWidth:130,
-      flex:0.7
+      minWidth:50,
+      flex:0.2
     },
     {
       field:"",
-      flex:1,
+      flex:0.2,
       headerName:"",
       type:"number",
       sortable:false,
       renderCell: (params) => {
         return (
           <>
-            <Link to={`/user/order/${params.id}`}>
+            <Link to={`user/order/${params.id}`}>
               <Button>
                 <AiOutlineArrowRight size={20}/>
               </Button>
@@ -313,39 +343,39 @@ const AllOrders = () => {
 
   orders && orders.forEach((item) => {
     row.push({
-      id: item._id,
-      itemQty: item.orderItems.length,
-      total: "US$ " + item.totalPrice,
-      status: item.orderStatus
+      id: item?._id,
+      itemQty: item?.cart?.length,
+      total: "US$ " + item?.totalPrice,
+      status: item?.status
     })
   })
 
+
+  // console.log(getRowClassName)
+
   return (
-    <div className='pl-8 pt-1'>
+    <div className='pl-8 pt-1 w-[70rem]'>
       <DataGrid
       rows={row}
       columns={columns}
       pageSize={10}
       disableSelectionOnClick
+      // getRowClassName={getRowClassName}
       />
     </div>
   )
 }
 
 const AllRefundOrders = () => {
+  const { orders } = useSelector((state) => state.order);
+  const {user} = useSelector((state) => state.user)
+  const dispatch = useDispatch()
 
-  const orders = [
-    {
-      _id:"7463hvbfbhfbrtr28820221",
-      orderItems:[
-        {
-          name:"Iphone 14 pro max"
-        }
-      ],
-      totalPrice: 120,
-      orderStatus: "Processing"
-    }
-]
+  useEffect(() => {
+    dispatch(getAllOrdersOfUser(user._id))
+  }, [])
+
+  const eligibleOrder = orders && orders.filter((item) => item.status === "Processing refund")
 
 const columns = [
   {field:"id", headerName:"Order ID", minWidth: 150, flex:0.7},
@@ -379,7 +409,7 @@ const columns = [
     renderCell: (params) => {
       return (
         <>
-          <Link to={`/user/order/${params.id}`}>
+          <Link to={`profile/user/order/${params.id}`}>
             <Button>
               <AiOutlineArrowRight size={20}/>
             </Button>
@@ -392,14 +422,16 @@ const columns = [
 
 const row = []
 
-orders && orders.forEach((item) => {
+eligibleOrder && eligibleOrder.forEach((item) => {
   row.push({
     id: item._id,
-    itemQty: item.orderItems.length,
+    itemQty: item.cart.length,
     total: "US$ " + item.totalPrice,
-    status: item.orderStatus
+    status: item.status
   })
 })
+
+console.log("all orders", orders)
 
 
   return (
@@ -416,72 +448,70 @@ orders && orders.forEach((item) => {
 }
 
 const TrackOrder = () => {
-  const orders = [
+
+ const { orders } = useSelector((state) => state.order);
+  const {user} = useSelector((state) => state.user)
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    dispatch(getAllOrdersOfUser(user._id))
+  }, [])
+
+  
+
+  const columns = [
+    {field:"id", headerName:"Order ID", minWidth: 50, flex:0.2},
     {
-      _id:"7463hvbfbhfbrtr28820221",
-      orderItems:[
-        {
-          name:"Iphone 14 pro max"
-        }
-      ],
-      totalPrice: 120,
-      orderStatus: "Processing"
+      field:"status",
+      headerName: "Status",
+      minWidth: 50,
+      valueGetter: (params: GridValueGetterParams) => 
+        `${params?.row?.status}`
+    },
+    {
+      field:"itemQty",
+      headerName:"items Qty",
+      type:"number",
+      minWidth:50,
+      flex:0.2
+    },
+    {
+      field:"total",
+      headerName:"Total",
+      type:"number",
+      minWidth:50,
+      flex:0.2
+    },
+    {
+      field:"",
+      flex:0.2,
+      headerName:"",
+      type:"number",
+      sortable:false,
+      renderCell: (params) => {
+        return (
+          <>
+            <Link to={`user/track-order/${params.id}`}>
+              <Button>
+                <MdTrackChanges size={20}/>
+              </Button>
+            </Link>
+          </>
+        )
+      }
     }
-]
+  ]
 
-const columns = [
-  {field:"id", headerName:"Order ID", minWidth: 150, flex:0.7},
-  {
-    field:"status",
-    headerName: "Status",
-    minWidth: 130,
-    valueGetter: (params: GridValueGetterParams) => 
-      `${params.row.status}`
-  },
-  {
-    field:"itemQty",
-    headerName:"items Qty",
-    type:"number",
-    minWidth:130,
-    flex:0.7
-  },
-  {
-    field:"total",
-    headerName:"Total",
-    type:"number",
-    minWidth:130,
-    flex:0.7
-  },
-  {
-    field:"",
-    flex:1,
-    headerName:"",
-    type:"number",
-    sortable:false,
-    renderCell: (params) => {
-      return (
-        <>
-          <Link to={`/user/order/${params.id}`}>
-            <Button>
-              <MdOutlineTrackChanges size={20}/>
-            </Button>
-          </Link>
-        </>
-      )
-    }
-  }
-]
+  const row = []
 
-const row = []
-
-orders && orders.forEach((item) => {
-  row.push({
-    id: item._id,
-    itemQty: item.orderItems.length,
-    total: "US$ " + item.totalPrice,
-    status: item.orderStatus
+  orders && orders.forEach((item) => {
+    row.push({
+      id: item?._id,
+      itemQty: item?.cart?.length,
+      total: "US$ " + item?.totalPrice,
+      status: item?.status
+    })
   })
-})
 
   return (
     <div className='pl-8 pt-1'>
@@ -534,8 +564,271 @@ const Payment = () => {
   )
 }
 const Address = () => {
+  const [open, setOpen] = useState(false);
+  let countryData = Country.getAllCountries();
+  const [stateData, setStateData] = useState();
+  const [cityData, setCityData] = useState();
+  const [country, setCountry] = useState(countryData[0]);
+  // console.log("country", country)
+  const [state, setState] = useState("");
+  // console.log("state",state)
+  const [city, setCity] = useState("")
+  // console.log("city", city)
+  const [zipCode, setZipCode] = useState();
+  const [address1, setAddress1] = useState("");
+  const [address2, setAddress2] = useState("");
+  const [addressType, setAddressType] = useState("");
+  const { user } = useSelector((state) =>  state.user);
+  console.log(user)
+  const dispatch = useDispatch()
+
+
+  useEffect(() => {
+    setStateData(State.getStatesOfCountry(country?.isoCode))
+  }, [])
+
+  useEffect(() => {
+    setCityData(City.getCitiesOfState(country?.isoCode, state?.isoCode));
+  }, [state]);
+
+  useEffect(() => {
+    stateData && setState(stateData[0]);
+  }, [stateData]);
+
+  useEffect(() => {
+    cityData && setCity(cityData[0]);
+  }, [cityData]);
+  
+
+  const addressTypeData = [
+    {
+      name:"Default"
+    },
+    {
+      name:"Home"
+    },
+    {
+      name:"Office"
+    },
+  ];
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    if(addressType === "" || country === "" || city === ""){
+      toast.error('Please fill out all fields')
+    }else{
+      dispatch(updateUserAddress( 
+        country,
+        city,
+        address1,
+        address2,
+        zipCode,
+        addressType
+        ))
+        setOpen(false)
+        setCountry("")
+        setCity("")
+        setAddress1()
+        setAddress2()
+        setZipCode(null)
+        setAddressType("")
+    } 
+  }
+
+  const handleDelete =  (item) => {
+      const id = item._id;
+      dispatch(deleteUserAddress(id));
+    // window.location.reload()
+  };
+
   return (
     <div className='w-full px-5'>
+      {
+        open &&(
+          <div className='fixed w-full h-screen bg-[#0000004b] top-0 left-0 flex items-center justify-center'>
+            <div className='w-[35%] h-[80vh] bg-white rounded shadow relative overflow-y-scroll'>
+              <div className='w-full flex justify-end p-3'>
+            <RxCross1
+            size={30}
+            className='cursor-pointer'
+            onClick={() => setOpen(false)}
+            />
+            </div>
+            <h1 className='text-center text-[25px] font-Poppies'>
+              Add new Address
+            </h1>
+            <div className='w-full'>
+              <form aria-required onSubmit={handleSubmit}>
+                <div className='w-full block p-4'>
+                  <div className='w-full pb-2'>
+                    <label className='block pb-2'>
+                      Country
+                    </label>
+                    <select name="" id="" value={country} onChange={(e) => setCountry(e.target.value)}
+                    className='w-[95%] border h-[40px] rounded-[5px]'
+                    >
+                      <option value="" className='block pb-2'>
+                        choose your Country
+                      </option>
+                      {
+                        Country && Country.getAllCountries().map((item) => (
+                          <option  className='block pb-2' key={item.isoCode} value={item.isoCode}>
+                              {item.name}
+                          </option>
+                        ))
+                      }
+                    </select>
+                  </div>
+                  <div className='w-full pb-2'>
+                    <label className='block pb-2'>
+                      Province
+                    </label>
+                    <select name="" id="" value={state} onChange={(e) => setState(e.target.value)}
+                    className='w-[95%] border h-[40px] rounded-[5px]'
+                    >
+                      <option value="" className='block pb-2'>
+                        choose your province
+                      </option>
+                      {
+                        State && State.getStatesOfCountry(country).map((item) => (
+                          <option  className='block pb-2' key={item.isoCode} value={item.isoCode}>
+                              {item.name}
+                          </option>
+                        ))
+                      }
+                    </select>
+                  </div>
+                  {/* <div className='w-full pb-2'>
+                    <label className='block pb-2'>
+                      City
+                    </label>
+                    <select name="" id="" value={city} onChange={(e) => setCity(e.target.value)}
+                    className='w-[95%] border h-[40px] rounded-[5px]'
+                    >
+                      <option value="" className='block pb-2'>
+                        choose your city
+                      </option>
+                      {
+                        City && City.getCitiesOfState(country, state).map((item) => (
+                          <option  className='block pb-2' key={item.isoCode} value={item.isoCode}>
+                              {item.name}
+                          </option>
+                        ))
+                      }
+                    </select>
+                  </div> */}
+                     <div className='w-full pb-2'>
+                    <label className='block pb-2'>
+                      Adress 1
+                    </label>
+                    <input 
+                    type="address" 
+                    id="" 
+                    required
+                    value={address1} 
+                    onChange={(e) => setAddress1(e.target.value)}
+                    className={styles.input}
+                    />
+                      {/* <option value="" className='block pb-2'>
+                        choose your province
+                      </option>
+                      {
+                        State && State.getStatesOfCountry(country).map((item) => (
+                          <option  className='block pb-2' key={item.isoCode} value={item.isoCode}>
+                              {item.name}
+                          </option>
+                        ))
+                      } */}
+                    
+                  </div>
+                     <div className='w-full pb-2'>
+                    <label className='block pb-2'>
+                      Adress 2
+                    </label>
+                    <input 
+                    type="address" 
+                    id="" 
+                    required
+                    value={address2} 
+                    onChange={(e) => setAddress2(e.target.value)}
+                    className={styles.input}
+                    />
+                      {/* <option value="" className='block pb-2'>
+                        choose your province
+                      </option>
+                      {
+                        State && State.getStatesOfCountry(country).map((item) => (
+                          <option  className='block pb-2' key={item.isoCode} value={item.isoCode}>
+                              {item.name}
+                          </option>
+                        ))
+                      } */}
+                    
+                  </div>
+                     <div className='w-full pb-2'>
+                    <label className='block pb-2'>
+                      Zib Code
+                    </label>
+                    <input 
+                    type="number" 
+                    id="" 
+                    required
+                    value={zipCode} 
+                    onChange={(e) => setZipCode(e.target.value)}
+                    className={styles.input}
+                    />
+                      {/* <option value="" className='block pb-2'>
+                        choose your province
+                      </option>
+                      {
+                        State && State.getStatesOfCountry(country).map((item) => (
+                          <option  className='block pb-2' key={item.isoCode} value={item.isoCode}>
+                              {item.name}
+                          </option>
+                        ))
+                      } */}
+                    
+                  </div>
+                  <div className='w-full pb-2'>
+                    <label className='block pb-2'>
+                      Address Type
+                    </label>
+                    <select name="" id="" value={addressType} onChange={(e) => setAddressType(e.target.value)}
+                    className='w-[95%] border h-[40px] rounded-[5px]'
+                    >
+                      <option value="" className='block pb-2'>
+                        choose your Address Type
+                      </option>
+                      {
+                        addressTypeData && addressTypeData.map((item) => (
+                          <option  
+                          className='block pb-2' 
+                          key={item.name} 
+                          value={item.name}>
+                              {item.name}
+                          </option>
+                        ))
+                      }
+                    </select>
+                  </div>
+                  <div className='w-full pb-2'>
+                    <input 
+                    type="submit" 
+                    className={`${styles.input} mt-5 cursor-pointer`}
+                    required
+                    readOnly
+                    />
+                    </div>
+
+                </div>
+              </form>
+            </div>
+            </div>
+          </div>
+        )
+
+      }
       <div className='flex w-full items-center justify-between'>
       <h1
       className='text-[25px] font-[600] text-[#000000ba] pb-2'
@@ -544,6 +837,7 @@ const Address = () => {
       </h1>
       <div
       className={`${styles.button} rounded-md`}
+      onClick={() => setOpen(true)}
       >
         <span className='text-[#fff]'>
           Add New
@@ -551,24 +845,33 @@ const Address = () => {
       </div>
       </div>
       <br/>
-      <div className="w-full bg-white h-[70px] rounded-[4px] flex items-center px-3 shadow justify-between pr-10">
+      {
+        user && user.addresses.map((item, index) => (
+      <div key={index} className="w-full bg-white h-[70px] rounded-[4px] flex items-center px-3 shadow justify-between pr-10">
         <div className="flex items-center">
           {/* <img
           src={visa}
           className='w-20'
           /> */}
-          <h5 className='pl-5 font-[600]'>Default</h5>
+          <h5 className='pl-5 font-[600]'>{item.addressType}</h5>
         </div>
         <div className='pl-8 flex items-center'>
-          <h6 className='font-[400]'>Dusun 02 Rt.12/Rw.02 Kec.Wonoasri Kab.Madiun</h6>
+          <h6 className='font-[400]'>{item.address1} + {item.address2}</h6>
         </div>
         <div className='pl-8 flex items-center'>
-          <h6 className='font-[400]'>085782244135</h6>
+          <h6 className='font-[400]'>{user && user.phoneNumber}</h6>
         </div>
         <div className='min-w-[10%] flex items-center justify-between pl-8'>
-          <AiOutlineDelete size={20} className='cursor-pointer'/>
+          <AiOutlineDelete size={20} className='cursor-pointer' onClick={() => handleDelete(item)}/>
         </div>
       </div>
+        ))
+      }
+         {user && user.addresses.length === 0 && (
+        <h5 className="text-center pt-8 text-[18px]">
+          You not have any saved address!
+        </h5>
+      )}
     </div>
   )
 }
@@ -658,7 +961,7 @@ return(
                           className='flex justify-between'
                           >
                             <input 
-                            type={newVisible ? "text" : "password"} 
+                             type={newVisible ? "text" : "password"} 
                             name='password' 
                             autoComplete='current-password' 
                             required 

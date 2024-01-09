@@ -25,7 +25,8 @@ router.post("/create-shop", async(req, res, next) => {
         const sellerEmail = await Shop.findOne({email})
 
         if (sellerEmail) {
-          return next(new ErrorHandler("User already exists", 400));
+          // return next(new ErrorHandler("User already exists", 400))
+          return res.status(400).json({ status: false , message:"User already exists"})
         }
 
         let avatarData = {}
@@ -70,11 +71,19 @@ router.post("/create-shop", async(req, res, next) => {
               message: `please check your email:- ${seller.email} to activate your account!`,
             });
           } catch (error) {
-            return next(new ErrorHandler(error.message, 500));
+            // return next(new ErrorHandler(error.message, 500))
+            res.status(500).json({
+              success: false,
+              message: error.message
+            })
           } 
   
     }catch(error){
-        return next(new ErrorHandler(error.message, 400))
+        // return next(new ErrorHandler(error.message, 400))
+        res.status(400).json({
+          success: false,
+          message: error.message
+        })
     }
 })
 
@@ -98,14 +107,22 @@ router.post(
         );
   
         if (!newSeller) {
-          return next(new ErrorHandler("Invalid token", 400));
+          // return next(new ErrorHandler("Invalid token", 400));
+          return res.status(400).json({
+            success: false,
+            message: "Invalid token"
+          });
         }
         const { name, email, password, avatar, zipCode, address, phoneNumber } = newSeller;
   
         let seller = await Shop.findOne({ email });
   
         if (seller) {
-            return next(new ErrorHandler("User already exists", 400));
+            // return next(new ErrorHandler("User already exists", 400));
+            return res.status(400).json({
+              success: false,
+              message: "User already exists"
+            });
         }
 
         
@@ -133,7 +150,11 @@ router.post(
   
         sendShopToken(seller, 201, res);
       } catch (error) {
-        return next(new ErrorHandler(error.message, 500));
+        // return next(new ErrorHandler(error.message, 500));
+        res.status(500).json({
+          success: false,
+          message: error.message
+        })
       }
     })
   );
@@ -146,13 +167,21 @@ router.post(
       const { email, password } = req.body;
 
       if (!email || !password) {
-        return next(new ErrorHandler("Please provide the all fields!", 400));
+        // return next(new ErrorHandler("Please provide the all fields!", 400));
+        return res.status(400).json({
+          success: false,
+          message: "Please provide the all fields!"
+        });
       }
 
       const seller = await Shop.findOne({ email }).select("+password");
 
       if (!seller) {
-        return next(new ErrorHandler("User doesn't exists!", 400));
+        // return next(new ErrorHandler("User doesn't exists!", 400));
+        return res.status(400).json({
+          success: false,
+          message: "User doesn't exists!"
+        });
       }
 
       
@@ -160,14 +189,20 @@ router.post(
       const isPasswordValid = await seller.comparePassword(password);
 
       if (!isPasswordValid) {
-        return next(
-        new ErrorHandler("Please provide the correct information", 400)
-        );
+        // return next(new ErrorHandler("Please provide the correct information", 400));
+        return res.status(400).json({
+          success: false,
+          message: "Please provide the correct information"
+        });
       }
 
      await sendShopToken(seller, 201, res);
     } catch (error) {
-      return next(new ErrorHandler(error.message, 500));
+      // return next(new ErrorHandler(error.message, 500));
+      res.status(500).json({
+        success: false,
+        message: error.message
+      })
     }
   })
 );
@@ -180,7 +215,11 @@ router.get("/getSeller", isSellerAuthenticated, catchAsyncError(async(req,res,ne
     const seller = await Shop.findById(req.seller.id)
 
     if(!seller){
-      return next(new ErrorHandler("User doesn't exist", 400))
+      // return next(new ErrorHandler("User doesn't exist", 400))
+      return res.status(400).json({
+        success: false,
+        message: "User doesn't exist"
+      })
     }
 
     res.status(200).json({
@@ -189,7 +228,11 @@ router.get("/getSeller", isSellerAuthenticated, catchAsyncError(async(req,res,ne
     })
 
   }catch(error){
-    return next(new ErrorHandler(error.message, 500))
+    // return next(new ErrorHandler(error.message, 500))
+    res.status(500).json({
+      success: false,
+      message: error.message
+    })
   }
 }))
 
@@ -208,7 +251,11 @@ router.get("/logout", catchAsyncError(async(req,res,next) => {
     })
 
   }catch(error){
-    return next(new ErrorHandler(error.message, 500))
+    // return next(new ErrorHandler(error.message, 500))
+    res.status(500).json({
+      success: false,
+      message: error.message
+    })
   }
 }))
 
@@ -220,9 +267,82 @@ router.get("/get-shop-info/:id", catchAsyncError(async(req,res,next) => {
       shop
     })
   }catch(error){
-    return next(new ErrorHandler(error.message, 500))
+    // return next(new ErrorHandler(error.message, 500))
+    res.status(500).json({
+      success: false,
+      message: error.message
+    })
   }
 }))
+
+// update shop profile picture
+router.put("/update-shop-avatar", isSellerAuthenticated, catchAsyncError(async(req,res,next) => {
+  try{
+    let existsSeller = await Shop.findById(req.seller._id)
+
+    const imageId = existsSeller.avatar.public_id
+
+    await cloudinary.uploader.destroy(imageId)
+
+    const myCloud = await cloudinary.uploader.upload(req.body.avatar,{
+      folder:"seller_ecommerce1",
+      width:150
+    })
+
+    existsSeller.avatar = {
+      public_id: myCloud.public_id,
+      url: myCloud.secure_url
+    }
+
+    await existsSeller.save()
+
+    res.status(200).json({
+      success: true,
+      seller: existsSeller
+    })
+
+  }catch(error){
+    // return next(new ErrorHandler(error.message, 500))
+    res.status(500).json({
+      success: false,
+      message: error.message
+    })
+  }
+}))
+
+// update seller info
+router.put("/update-seller-info", isSellerAuthenticated, catchAsyncError(async(req,res,next) => {
+  try{
+    
+    const {name, description, address, phoneNumber, zipCode} = req.body
+
+    const shop = await Shop.findOne(req.seller._id)
+
+    if(!shop){
+      return next(new ErrorHandler("User not found", 400))
+    }
+
+    shop.name = name;
+    shop.description = description
+    shop.address = address
+    shop.phoneNumber = phoneNumber
+    shop.zipCode = zipCode
+
+    await shop.save()
+
+    res.status(201).json({
+      success: true,
+      shop
+    })
+  }catch(error){
+    // return next(new ErrorHandler(error.message))
+    res.status(500).json({
+      success: false,
+      message: error.message
+    })
+  }
+}))
+
 
 
 module.exports = router

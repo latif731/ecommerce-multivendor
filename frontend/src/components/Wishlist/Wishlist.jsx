@@ -14,7 +14,7 @@ import { toast } from "react-toastify"
 
 const Wishlist = ({setOpenWishlist}) => {
     const {wishlist} = useSelector((state) => state.wishlist)
-    console.log(wishlist)
+    // console.log(wishlist)
     const {cart} = useSelector((state) =>  state.cart)
     const dispatch = useDispatch()
     const removeFromWishlistHandler = (data) => {

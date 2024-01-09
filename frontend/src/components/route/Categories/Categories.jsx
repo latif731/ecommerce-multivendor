@@ -1,10 +1,16 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styles from '../../../styles/styles'
 import { brandingData, categoriesData } from '../../../static/data'
 import { useNavigate } from 'react-router-dom'
 // import ProductCard from '../ProductCard/PoductCard'
 
 const Categories = () => {
+    const [categories, setCategories] = useState(categoriesData);
+
+    // useEffect(() => {
+    //     setCategory(categoriesData)
+    // },[])
+
     const navigate = useNavigate()
   return (
     <>
@@ -19,7 +25,7 @@ const Categories = () => {
                             {i.icon}
                             <div className='px-3'>
                                 <h3 className='font-bold text-sm md:text-base'>
-                                    {i.title}
+                                    {i.category}
                                 </h3>
                                 <p className='text-xs md:text-sm'>
                                     {i.Description}
@@ -34,16 +40,16 @@ const Categories = () => {
         id="categories"
         >
             <div className='grid grid-cols-1 gap-[5px] md:grid-cols-2 md:gap-[10px] lg:grid-cols-4 lg:gap-[20px] xl:grid-cols-5 xl:gap-[30px]'>
-                {
+                {/* {
                     categoriesData && categoriesData.map((i) => {
-                        const handleSubmit = (i) => {
-                            navigate(`/products?category=${i.title}`);
+                        const handleSubmit = (category) => {
+                            navigate(`/products?category=${category.category}`);
                         }
                         return (
                             <div 
                             className='w-full h-[100px] flex items-center justify-items cursor-pointer overflow-hidden'
                             key={i.id}
-                            onClick={() =>  handleSubmit}
+                            onClick={() =>  handleSubmit(i)}
                             >
                                 <h5 className={`text-[18px] leading-[1.3]`}>{i.title}</h5>
                                 <img 
@@ -54,7 +60,43 @@ const Categories = () => {
                             </div>
                         )
                     })
-                }
+                } */}
+
+{/* {
+  categoriesData && categoriesData.map((i) => {
+      console.log(" selected product", i)
+    const handleSubmit = (category) => {
+      navigate(`/products?category=${category}`);
+    };
+
+    return (
+      <div
+        className='w-full h-[100px] flex items-center justify-items cursor-pointer overflow-hidden'
+        key={i.id}
+        onClick={() => handleSubmit(i.category)}
+      >
+        <h5 className={`text-[18px] leading-[1.3]`}>{i.category}</h5>
+        <img
+          src={i.image_Url}
+          className='w-[120px] object-cover'
+          alt=''
+        />
+      </div>
+    );
+  })
+} */}
+                {categories &&
+                        categories.map((category) => (
+                            // console.log("jancok",category)
+                            <div
+                                className='w-full h-[100px] flex items-center justify-items cursor-pointer overflow-hidden'
+                                key={category.id}
+                                onClick={() => navigate(`/products?category=${category.category}`)}
+                            >
+                                <h5 className={`text-[18px] leading-[1.3]`}>{category.category}</h5>
+                                <img src={category.image_Url} className='w-[120px] object-cover' alt='' />
+                            </div>
+                        ))}
             </div>
         </div>
     </>

@@ -4,10 +4,11 @@ const catchAsyncError = require("../middleware/catchAsyncError")
 const Product = require("../model/product")
 const Shop = require("../model/shop")
 const ErrorHandler = require("../utils/ErrorHandler")
-const {isSellerAuthenticated} = require("../middleware/auth")
+const {isSellerAuthenticated, isAuthenticated, isAdmin} = require("../middleware/auth")
 const fs = require("fs")
 const cloudinary = require("../cloudinary/cloudinaryconfig")
 const fileUpload = require("express-fileupload")
+const Order = require("../model/order")
 
 router.use(fileUpload())
 
@@ -30,7 +31,11 @@ router.post('/create-product', async (req, res, next) => {
     // memeastikan 'image' adalah sebuah array, sebanyak data yang dapat di upload
     const shopData = await Shop.findById(shopId)
     if(!shopData){
-      return next(new ErrorHandler("Shop Id is Invalid", 400))
+      // return next(new ErrorHandler("Shop Id is Invalid", 400))
+      return res.status(400).json({
+        success: false,
+        error: "Shop Id is Invalid"
+      })
     }
     const images = Object.values(req.files)
     // const images = []
@@ -44,7 +49,11 @@ router.post('/create-product', async (req, res, next) => {
     console.log(images) 
 
     if (!images || images.length === 0) {
-    return res.status(400).json({ message: 'No images uploaded' });
+    // return res.status(400).json({ message: 'No images uploaded' });
+    return res.status(400).json({
+      success: false,
+      error: "No images uploaded"
+    })
     }
 
     const product = new Product({
@@ -115,7 +124,11 @@ router.get('/get-all-products-shop/:id', catchAsyncError(async(req,res,next)=> {
       products
     })
   }catch (error){
-    return next(new ErrorHandler(error, 400))
+    // return next(new ErrorHandler(error, 400))
+    return res.status(400).json({
+      success: false,
+      error: error.message
+    })
   }
 }))
 
@@ -123,7 +136,11 @@ router.delete('/delete-shop-product/:id', catchAsyncError(async(req,res,next) =>
   try{
     const product = await Product.findById(req.params.id)
     if(!product){
-      return next(new ErrorHandler("Product is not found with this id", 404))
+      // return next(new ErrorHandler("Product is not found with this id", 404))
+      return res.status(404).json({
+        success: false,
+        error: "Product is not found with this id"
+      })
     }
     for(let i = 0; i < product.imageUrl.length; i++){
       try{
@@ -158,11 +175,98 @@ router.get(
         products,
       });
     } catch (error) {
-      return next(new ErrorHandler(error, 400));
+      // return next(new ErrorHandler(error, 400));
+      return res.status(400).json({
+        success: false,
+        error: error.message,
+      });
     }
   })
 );
 
+
+// review a product
+router.put(
+  "/create-new-review", 
+isAuthenticated,
+catchAsyncError(async(req,res,next) => {
+  try{
+    const { user, rating, comment, productId, orderId} = req.body
+
+    const product = await Product.findById(productId)
+
+    const review = {
+      user,
+      rating,
+      comment,
+      productId
+    }
+
+    const isReviewed = product.reviews.find((rev) => rev.user._id === req.user._id)
+
+    if(isReviewed) {
+      product.reviews.forEach((rev) => {
+        if(rev.user._id === req.user._id) {
+          (rev.rating = rating), (rev.comment = comment), (rev.user = user);
+        }
+      })
+    }else {
+      product.reviews.push(review)
+    }
+
+    let avg = 0;
+
+    product.reviews.forEach((rev) => {
+      avg += rev.rating;
+    })
+
+    product.ratings = avg / product.reviews.length
+
+    await product.save({validateBeforeSave: false})
+
+    await Order.findByIdAndUpdate(
+      orderId,
+      {$set:{"cart.$[elem].isReviewed" : true}},
+      {arrayFilters:[{"elem._id": productId}], new: true}
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Reviewed Successfully"
+    })
+
+  }catch(error){
+    // return next( new ErrorHandler(error, 400))
+    return res.status(400).json({
+      success: false,
+      error: error.message
+    })
+  }
+}))
+
+// all products --- for admin
+router.get(
+  "/admin-all-products",
+  isAuthenticated,
+  isAdmin("Admin"),
+  catchAsyncError(async(req,res,next) => {
+    try{
+      const products = await Product.find().sort({
+        cretedAt: -1,
+      })
+      res.status(200).json({
+        success: true,
+        products
+      })
+    }catch(error){
+      // return next(new ErrorHandler(error.message, 400))
+      return res.status(400).json({
+        success: false,
+        error: error.message
+      })
+    }
+  })
+)
 
 
 module.exports = router;

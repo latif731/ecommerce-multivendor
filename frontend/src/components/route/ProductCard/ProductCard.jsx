@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import styles from '../../../styles/styles'
@@ -8,12 +9,13 @@ import { useSelector, useDispatch } from 'react-redux'
 import { addToWishlist, removeFromWishlist } from '../../../redux/actions/wishlist'
 import {toast} from "react-toastify"
 import { addToCart } from '../../../redux/actions/cart'
+import Ratings from '../../Products/Ratings'
 
 const ProductCard = ({data}) => {
     // console.log("poductCard",data)
     const {cart} = useSelector((state) => state.cart)
     const {wishlist} = useSelector((state) => state.wishlist)
-    console.log("ini wishlist", wishlist)
+    // console.log("ini wishlist", wishlist)
     // const {cart} = useSelector((state) =>  state.cart)
     const [click, setClick] = useState(false)
     const [open, setOpen] = useState(false)
@@ -77,9 +79,9 @@ const ProductCard = ({data}) => {
           className='w-full h-[170px] object-contain'
         />
       )} */}
-         {data && data.imageUrl && data.imageUrl.length > 0 && (
+         {data && (data.imageUrl && data.imageUrl.length > 0 || data.imageUrl2 && data.imageUrl2.length > 0) && (
           <img
-            src={data.imageUrl[0].secure_url}
+            src={data?.imageUrl[0]?.secure_url || data?.imageUrl2[0]?.secure_url}
             alt=''
             className='w-full h-[170px] object-contain'
           />
@@ -92,8 +94,9 @@ const ProductCard = ({data}) => {
             <h4 className='pb-3 font-[500]'>
                 {data.name.length > 40 ? data.name.slice(0,40) + "..." : data.name}
             </h4>
-            <div className='flex'>
-                <AiFillStar
+            <div>
+            <Ratings rating={data.ratings}/>
+                {/* <AiFillStar
                 color='#F6BA00'
                 size={20}
                 className="mr-2 cursor-pointer"
@@ -117,7 +120,7 @@ const ProductCard = ({data}) => {
                 color='#F6BA00'
                 size={20}
                 className="mr-2 cursor-pointer"
-                />
+                /> */}
             </div>
             <div className='py-2 flex items-center justify-between'>
                 <div className='flex'>

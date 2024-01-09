@@ -35,7 +35,8 @@ export const getAllProductsShop = (id) => async(dispatch) => {
         dispatch({
             type: "getAllProductsShopRequest",
         })
-        const {data} = await axios.get(`${server}/product/get-all-products-shop/${id}`)
+        const { data } = await axios.get(`${server}/product/get-all-products-shop/${id}`)
+        console.log("action product shop",data)
         dispatch({
             type: "getAllProductsShopSuccess",
             payload: data.products

@@ -1,7 +1,8 @@
 import { createReducer } from "@reduxjs/toolkit"
 
 const initialState = {
-    isAuthenticated: false
+    isAuthenticated: false,
+    accessToken: null
 }
 
 export const userReducer = createReducer(initialState, {
@@ -19,6 +20,15 @@ export const userReducer = createReducer(initialState, {
         state.isAuthenticated = false;
     },
 
+    // refreshToken
+    refreshAccessTokenSuccess: (state, action) => {
+        state.accessToken = action.payload;
+    },
+
+    refreshAccessTokenFail: (state, action) => {
+        console.error("Failed to refresh token", action.payload);
+    },
+
     // update user information
     updateUserInfoRequest: (state) => {
         state.loading = true
@@ -31,8 +41,42 @@ export const userReducer = createReducer(initialState, {
         state.loading = false;
         state.error = action.payload
     },
+
+    // update user address
+    updateUserAddressRequest: (state) =>{
+        state.addressloading = true;
+    },
+
+    updateUserAddressSuccess: (state, action)  => {
+        state.addressloading = false;
+        state.successMessage = action.payload.successMessage;
+        state.user = action.payload.user
+    },
+    updateUserAddressFailed: (state, action) => {
+        state.loading = false;
+        state.error = action.payload
+    },
+
+    // delete user address
+    deleteUserAddressRequest: (state) => {
+        state.addressloading = true;
+    },
+
+    deleteUserAddressSuccess: (state, action) => {
+        state.addressloading = false;
+        state.successMessage = action.payload.successMessage;
+        state.user = action.payload.user;
+    },
+    deleteUserAddressFailed: (state, action) => {
+        state.addressloading = false;
+        // state.successMessage = action.payload.successMessage;
+        state.error = action.payload;
+    },
     clearErrors: (state) => {
         state.error = null
+    },
+    clearMessages: (state) => {
+        state.successMessage = null;
     }
 })
 

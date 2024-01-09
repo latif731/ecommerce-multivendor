@@ -80,7 +80,7 @@ export const getAllEvents = () =>  async (dispatch) => {
         })
 
         const {data} = await axios.get(`${server}/event/get-all-events`);
-        console.log("event",data)
+        // console.log("event",data)
         dispatch({
             type:"getAlleventsSuccess",
             payload: data.events

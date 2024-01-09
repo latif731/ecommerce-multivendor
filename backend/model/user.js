@@ -34,8 +34,8 @@ const userSchema = new mongoose.Schema({
             address2:{
                 type:String
             },
-            zipcode:{
-                type:String
+            zipCode:{
+                type:Number
             },
             addressType:{
                 type:String
@@ -63,11 +63,46 @@ const userSchema = new mongoose.Schema({
         default: Date.now()
     },
     resetPasswordToken: String,
-    resetPasswordTime: Date
+    resetPasswordTime: Date,
+    refreshToken:{
+        type: String,
+        default: null
+    }
 })
 
 
-userSchema.pre("save", async function (next){
+// userSchema.methods.generateRefreshToken = function () {
+//     // Generate a refresh token
+//     const refreshToken = jwt.sign({id: this._id}, process.env.REFRESH_TOKEN_SECRET)
+//     // user.refreshToken = refreshToken
+//     // user.save()
+//     this.refreshToken = refreshToken;
+//     this.save();
+
+//     return refreshToken;
+// }
+
+userSchema.methods.generateRefreshToken = async function () {
+    return new Promise((resolve, reject) => {
+      try {
+        // Generate a refresh token
+        const refreshToken = jwt.sign({ id: this._id }, process.env.REFRESH_TOKEN_SECRET);
+  
+        // Save the refresh token to the user document
+        this.refreshToken = refreshToken;
+        this.save();
+  
+        resolve(refreshToken);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  };
+  
+
+
+
+userSchema.pre("save", async function (next){   
     if(!this.isModified("password")){
       next();
     }
@@ -87,6 +122,8 @@ userSchema.methods.getJwtToken =  function () {
   
   // compare password
   userSchema.methods.comparePassword = async function (enteredPassword) {
+    console.log("Entered Password", enteredPassword)
+    console.log("Stored Hashed Password", this.password)
     return await bcrypt.compare(enteredPassword, this.password);
   };
 

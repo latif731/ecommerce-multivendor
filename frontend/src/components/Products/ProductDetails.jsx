@@ -8,15 +8,21 @@ import { getAllProductsShop } from '../../redux/actions/product'
 import { addToWishlist, removeFromWishlist } from '../../redux/actions/wishlist'
 import { addToCart } from '../../redux/actions/cart'
 import { toast } from "react-toastify"
+import Ratings from "./Ratings"
+import { server } from '../../server'
+import axios from 'axios'
 
 
 const ProductDetails = ({data}) => {
+  // console.log("ini data di product detail page", data)
   const {products} = useSelector((state) => state.products)
   const { cart } = useSelector((state) => state.cart)
+  const { user, isAuthenticated } = useSelector((state) => state.user)
   const { wishlist } = useSelector((state) => state.wishlist) 
-  console.log("products di detail ",products)
+  // const { seller } = useSelector((state) => state.seller)
+  // console.log("products di detail ",products)
   console.log("data di detail",data)
-  console.log("Product detail", wishlist)
+  // console.log("Product detail", wishlist)
   const [count, setCount] = useState(1)
   const [click, setClick] = useState(false)
   const [select, setSelect] = useState(0)
@@ -70,9 +76,36 @@ const incrementCount = () => {
         setCount(count + 1)
 }
 
-const handleMessageSubmit = () => {
-    navigate("/inbox?conversation=507ebjver884chfdcsrsnhbn834klnw0qu34nfc")
+const handleMessageSubmit = async () => {
+    // navigate("/inbox?conversation=507ebjver884chfdcsrsnhbn834klnw0qu34nfc")
+  if(isAuthenticated){
+    const groupTitle = data._id + user._id;
+    const userId = user._id;
+    const sellerId = data?.shop?._id
+    console.log(sellerId)
+    await axios.post(`${server}/conversation/create-new-conversation`, {
+      groupTitle, userId,sellerId
+    }).then((res) => {
+      navigate(`/conversation/${res.data.conversation._id}`)
+    }).catch((error) => {
+      toast.error(error.response.data.message)
+    })
+  }else{
+    toast.error("Please login to create a conversation")
+  }
+
 }
+
+// const TotalReviewsLength = products && products.reduce((acc, product) => acc + product.reviews.length, 0)
+
+// const totalRatings = products && products.reduce((acc, product) => acc + product?.reviews?.reduce((sum, review) => sum + review?.rating, 0))
+// console.log("total rating", totalRatings)
+
+const TotalReviewsLength = products && products.length > 0 ? products.reduce((acc, product) => acc + (product.reviews ? product.reviews.length : 0), 0) : 0;
+
+const totalRatings = products && products.length > 0 ? products.reduce((acc, product) => acc + (product.reviews ? product.reviews.reduce((sum, review) => sum + review.rating, 0) : 0), 0) : 0;
+const averageRating = totalRatings/TotalReviewsLength
+
 
   return (
     <div className='bg-white'>
@@ -123,7 +156,7 @@ const handleMessageSubmit = () => {
                       )}
                     </div> */}
                     {data.imageUrl && data.imageUrl.map((url, index) => {
-                      console.log("Image URL", url.secure_url)
+                      // console.log("Image URL", url.secure_url)
                       return (
                       <div
                       key={index}
@@ -227,7 +260,7 @@ const handleMessageSubmit = () => {
                         </h3>
                       </Link>
                     <h5 className='pb-3 text-[15px]'>
-                        ({data.shop.ratings}) Ratings
+                        ({averageRating}) Ratings
                     </h5>
                     </div>
                     <div
@@ -242,7 +275,12 @@ const handleMessageSubmit = () => {
                 </div>
               </div>
             </div>
-            <ProductDetailsInfo data={data} product={products}/>
+            <ProductDetailsInfo 
+            data={data} 
+            product={products} 
+            TotalReviewsLength={TotalReviewsLength}
+            averageRating= {averageRating}
+            />
             <br/>
             <br/>
           </div>
@@ -252,7 +290,7 @@ const handleMessageSubmit = () => {
   )
 }
 
-const ProductDetailsInfo = ({data, product}) => {
+const ProductDetailsInfo = ({data, product, TotalReviewsLength, averageRating}) => {
   const [active, setActive] = useState(1)
 
     return (
@@ -352,10 +390,29 @@ const ProductDetailsInfo = ({data, product}) => {
         }
         {
           active === 2 ? (
-            <div className='w-full justify-center min-h-[40vh] flex items-center'>
-              <p>No Reviews Yet</p>
+            
+            <div className='w-full min-h-[40vh] flex flex-col items-center py-3 overflow-y-scroll'>
+                {data && data.reviews.map((item, index) => (
+                  <div className='w-full flex my-2'>
+                      <img src={item?.user?.avatar?.url} className="w-[50px] h-[50px] rounded-full"/>
+                      <div className="pl-2">
+                      <div className='flex items-center gap-5'>
+                      <h1 className="text-[#000000] font-[500] mr-3">{item.user.name}</h1>
+                      <Ratings rating={item?.rating}/>
+                      </div>
+                      <p>{item.comment}</p>
+                      </div>
+                  </div>
+                ))}
+                <div className="w-full flex justify-center">
+                {
+                  data && data.reviews.length === 0 && (
+                    <p>No Reviews Yet</p>
+                  )
+                }
+                </div>
             </div>
-          ) : null
+          ) :null
         }
         {
           active === 3 ? (
@@ -377,8 +434,8 @@ const ProductDetailsInfo = ({data, product}) => {
                       </h3>
                     </Link>
                     <h5 className='pb-3 text-[15px]'>
-                        {/* ({data.shop.ratings})  */}
-                        (4/5)
+                        ({averageRating}) 
+                        {/* {data.reviews.ratings} */}
                         Ratings
                     </h5>
                     </div>
@@ -397,7 +454,7 @@ const ProductDetailsInfo = ({data, product}) => {
                       Total Products: <span className='font-[500]'>{product.length}</span>
                     </h5>
                     <h5 className='font-[600] pt-3'>
-                      Total Reviews: <span className='font-[500]'>324</span>
+                      Total Reviews: <span className='font-[500]'>{TotalReviewsLength}</span>
                     </h5>
                     <Link to="/">
                       <div

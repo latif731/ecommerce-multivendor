@@ -1,5 +1,5 @@
 // create token and saving that in cookies
-const sendToken = async (user, statusCode, res) => {
+const sendToken = async (user, statusCode, res, refreshToken) => {
   try{
     const token = user.getJwtToken();
     // console.log("ini tokeeeenn", token)
@@ -21,6 +21,7 @@ const sendToken = async (user, statusCode, res) => {
       success: true,
       user,
       token,
+      refreshToken
     });
 
   }catch(error){

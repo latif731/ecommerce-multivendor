@@ -6,12 +6,14 @@ import HomePage from "../pages/HomePage"
 import BestSellingPage from "../pages/BestSellingPage"
 import EventsPage from "../pages/EventsPage"
 import FAQPage from "../pages/FAQPage"
-import Checkout from "../pages/Checkout"
-import Payment from "../pages/Payment"
+import CheckoutPage from "../pages/CheckoutPage"
+import PaymentPage from "../pages/PaymentPage"
 import OrderSuccessPage from "../pages/OrderSuccessPage"
 import ProductDetailsCard from "../components/route/ProductDetail/ProductDetailsCard"
 import ProductDetailsPage from "../pages/ProductDetailsPage"
 import ProfilePage from "../pages/ProfilePage"
+import OrderDetailsPage from "../pages/OrderDetailsPage"
+import TrackOrderPage from "../pages/TrackOrderPage"
 
 
 export {
@@ -23,11 +25,12 @@ export {
     BestSellingPage,
     EventsPage,
     FAQPage,
-    Checkout,
-    Payment,
+    CheckoutPage,
+    PaymentPage,
     OrderSuccessPage,
     ProductDetailsCard,
     ProductDetailsPage,
     ProfilePage,
-
+    OrderDetailsPage,
+    TrackOrderPage
 }

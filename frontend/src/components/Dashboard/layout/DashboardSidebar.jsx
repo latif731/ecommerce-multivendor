@@ -15,7 +15,7 @@ import { IoSettingsOutline } from "react-icons/io5";
 
 const DashboardSidebar = ({active}) => {
   return (
-    <div className='w-full h-[89vh] bg-white shadow-sm overflow-y-scroll sticky top-0 left-0 z-10'>
+    <div className='w-full h-[100vh] bg-white shadow-sm overflow-y-scroll sticky top-0 left-0 z-10'>
       {/* single item */}
       <div className="w-full flex-center p-3">
         <Link to={"/dashboard"} className='w-full flex items-center'>
@@ -29,7 +29,7 @@ const DashboardSidebar = ({active}) => {
         </Link>
       </div>
       <div className="w-full flex-center p-3">
-        <Link to={"/dashboard-orders"} className='w-full flex items-center'>
+        <Link to={"/dashboard-all-orders"} className='w-full flex items-center'>
           <FiShoppingBag
           size={30}
           color={`${active === 2 ? "crimson" : "#555"}`}

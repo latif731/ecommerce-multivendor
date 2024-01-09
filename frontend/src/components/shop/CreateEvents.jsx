@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { categoriesData } from '../../static/data'
 import { AiOutlinePlusCircle } from 'react-icons/ai'
 import {toast} from "react-toastify"
@@ -9,16 +9,18 @@ import { FaTimes } from "react-icons/fa";
 import { FaTimesCircle } from "react-icons/fa";
 import { server } from '../../server'
 import axios from 'axios'
+import { getAllProductsShop } from '../../redux/actions/product'
 
 
 
 const CreateEvents = () => {   
+  console.log("Komponen CreateEvents dirender"); 
     const { seller } = useSelector((state) =>  state.seller)
-    console.log(seller._id)
-    const {products, isLoading} = useSelector((state) => state.products || {} )
-    console.log("ini product",products)
+    // console.log(seller._id)
+    const {products, isLoading} = useSelector((state) => state.products  )
+    console.log("ini product id",products?.length > 0 ? products[0]._id : "Tidak ada product")
     const navigate = useNavigate();
-    const dispatch = useDispatch();
+    const dispatch = useDispatch()
 
     const [name, setName] = useState("")
     const [description, setDescription] = useState("")
@@ -28,9 +30,37 @@ const CreateEvents = () => {
     const [discountPrice, setDiscountPrice] = useState()
     const [stock, setStockPrice] = useState()
     const [image, setImage] = useState([])
+    const [imageUrl, setImageUrl] = useState([])
+    const [imageUrl2, setImageUrl2] = useState([])
+    console.log("imageUrl2", imageUrl2)
+    // console.log("image files:", image)
     const [startDate, setStartDate] = useState(null) 
     const [endDate, setEndDate] = useState(null)
-    console.log(image)
+    const [productEvent, setproductEvent] = useState({_id:''})
+    const [uploadedImages, setUploadedImages] = useState([]);
+    // console.log("uploadedImage", uploadedImages)
+    const [productId, setProductId] = useState('')
+    console.log("product id", productId)
+    // const [selectedProductImages, setSelectedProductImages] = useState([])
+    // const [previewImages, setPreviewImages] = useState([{}]);
+
+    // const [productEvent, setProductEvent] = useState({})
+    // console.log("productEvent",productEvent)
+    // console.log("image", productEvent.imageUrl)
+    // console.log(image)
+
+    useEffect(() => {
+      if (productEvent && productEvent.imageUrl) {
+        setImageUrl(productEvent.imageUrl.map((image) => image.secure_url) || []);
+      }
+    }, [productEvent]);
+
+    useEffect(() => {
+      if (seller && seller._id) {
+        dispatch(getAllProductsShop(seller._id));
+      }
+    }, [dispatch, seller]);
+  
 
 
         const handleStartDateChange = (e) => {
@@ -41,6 +71,48 @@ const CreateEvents = () => {
         document.getElementById("end-date").min = minEndDate.toISOString().slice(0,5)
     }
 
+    const handleSelected = (e) => {
+      e.preventDefault();
+    
+      // Find the selected product from the products array
+      const productEventId = e.target.value;
+      // console.log("product id", productEventId)
+      const productEvent = products.find((product) => product._id === productEventId);
+      // console.log("memilih product",productEvent)
+      if (productEvent) {
+        // Update the form state with the selected product details
+        setName(productEvent.name || '');
+        setDescription(productEvent.description || '');
+        setCategory(productEvent.category || '');
+        setTags(productEvent.tags || '');
+        setOriginalPrice(productEvent.originalPrice || '');
+        setDiscountPrice(productEvent.discountPrice || '');
+        setStockPrice(productEvent.stock || '');
+        setproductEvent(productEvent._id)
+        setProductId(productEvent._id || '')
+        // setSelectedProductImages(productEvent.imageUrl || []);
+        // setproductEvent(productEvent);
+        // setImage(productEvent.imageUrl || []);
+        // setSelectedProductImages(productEvent.imageUrl.secure_url || []);
+        // setImageUrl(productEvent.imageUrl || [])
+        // setImageUrl(productEvent.imageUrl.map(image => image.secure_url) || []);
+      
+        if (productEvent && productEvent.imageUrl) {
+          const formattedImages = productEvent.imageUrl.map((image) => ({
+            secure_url: image?.secure_url,
+            public_id: image?.public_id,
+          }));
+          setImageUrl2(formattedImages);
+        } else {
+          console.log('No images associated with the selected product');
+          // Lakukan tindakan lain, misalnya menggunakan gambar default atau memberi peringatan
+        }
+        // setImage(productEvent.imageUrl[0].secure_url || []);
+        // setImage(Array.isArray(productEvent.imageUrl) ? productEvent.imageUrl : []);
+      }
+    };
+
+
     const handleEndDateChange = (e) => {
         const endDate = new Date(e.target.value)
         setEndDate(endDate)
@@ -50,86 +122,82 @@ const CreateEvents = () => {
 
     const minEndDate = startDate ? new Date(startDate.getTime() + 2 * 24 * 60 * 60 * 1000).toISOString().slice(0,5) : today;
 
-    // useEffect(() => {
-    //     if(error){
-    //         toast.error(error);
-    //     }
-    //     if(success){
-    //         toast.success("Product created successfully");
-    //         navigate("/dashboard");
-    //         window.location.reload();
-    //     }
-    // }, [dispatch, error, success])
-    
-
-    // const handleImageChange = (e) => {
-    //     const files = Array.from(e.target.files);
-    //     const validImageTypes = ['image/jpeg', 'image/png']; // Add more valid types if needed
-    
-    //     setImages([]);
-    
-    //     files.forEach((file) => {
-    //         if (validImageTypes.includes(file.type)) {
-    //             const reader = new FileReader();
-    
-    //             reader.onload = () => {
-    //                 if (reader.readyState === 2) {
-    //                     setImages((old) => [...old, file]); // Store the actual file object
-    //                 }
-    //             };
-    //             reader.readAsDataURL(file);
-    //         } else {
-    //             // Handle invalid file type
-    //             console.error(`Invalid file type: ${file.type}`);
-    //             // You may show a message or perform other actions for invalid files
-    //         }
-    //     });
-    // };
-
-    // const handleImageChange = (e) => {
-    //     const files = Array.from(e.target.files);
-    
-    //     setImages([]);
-    
-    //     files.forEach((file) => {
-    //       const reader = new FileReader();
-    
-    //       reader.onload = () => {
-    //         if (reader.readyState === 2) {
-    //           setImages((old) => [...old, reader.result]);
-    //         }
-    //       };
-    //       reader.readAsDataURL(file);
-    //     });
-    //   };
-
     const onSelectedFile = (e) => {
         const selectedFiles = e.target.files;
-        console.log(selectedFiles);
-        if (selectedFiles.length > 0) {
+        console.log("selected files", selectedFiles);
+        if (selectedFiles?.length > 0) {
           const selectedFilesArray = Array.from(selectedFiles);
           console.log("selectedFilesArray", selectedFilesArray);
+          // setPreviewImages((prevImages) => [...prevImages, ...selectedFilesArray]);
           setImage((previousImage) => previousImage.concat(selectedFilesArray));
+          // setImage((prevImages) => [...prevImages, ...selectedFilesArray]);
+          
+          // const formattedImages = selectedFilesArray.map((file) => ({
+          //   secure_url: URL.createObjectURL(file), // Anda mungkin perlu menyesuaikan ini berdasarkan logika aktual Anda
+          //   public_id: productEvent?.imageUrl[0]?.public_id  || `product/${file.name}`, // Menyesuaikan public_id dengan file name atau ID unik lainnya
+          // }));
+          // console.log("format image secure_url dan public_id",formattedImages)
+          // setproductEvent((prevProductEvent) => ({
+          //   ...prevProductEvent,
+          //   imageUrl: formattedImages // Gabungkasn URL gambar menjadi satu string
+          // }));
+          if(productEvent && productEvent.imageUrl){
+            const formattedImages = selectedFilesArray.map((file) => ({
+              secure_url: URL.createObjectURL(file), // Anda mungkin perlu menyesuaikan ini berdasarkan logika aktual Anda
+              public_id: productEvent?.imageUrl[0]?.public_id  || `product/${file.name}`, // Menyesuaikan public_id dengan file name atau ID unik lainnya
+            }));
+            console.log("format image secure_url dan public_id",formattedImages)
+            setproductEvent((prevProductEvent) => ({
+              ...prevProductEvent,
+              imageUrl: formattedImages // Gabungkasn URL gambar menjadi satu string
+            }));
+          }
+
+          // if (selectedProductImages.length > 0) {
+          //   const selectedImagesArray = selectedProductImages.map((image) => ({
+          //     secure_url: image,
+          //   }));
+          //   setImageUrl(selectedImagesArray);
+          // }
+
+          // setSelectedProductImages((prevImages) => [...prevImages, ...selectedFilesArray]);
+          // setUploadedImages((prevImages) => [...prevImages, ...selectedFilesArray]);
         }
+
+        // if (productEvent._id) {
+        //   const productImages = products.find((product) => product._id === productEvent._id)?.images || [];
+        //   setSelectedProductImages(productImages);
+        // } else {
+        //   // Jika user mengunggah gambar eksternal, atur selectedProductImages menjadi array kosong
+        //   setSelectedProductImages([]);
+        // }
     
         e.target.value = "";
+
+        // setSelectedProductImages([])
       };
     
       function deleteHandler(selectImage) {
         setImage(image.filter((e) => e !== selectImage));
       }
     
-      const resetForm = () => {
-        setName("");
-        setDescription("");
-        setCategory("");
-        setTags("");
-        setOriginalPrice("");
-        setDiscountPrice("");
-        setStockPrice("");
-        setImage([]);
-      };
-      
+      // const resetForm = () => {
+      //   setName("");
+      //   setDescription("");
+      //   setCategory("");
+      //   setTags("");
+      //   setOriginalPrice("");
+      //   setDiscountPrice("");
+      //   setStockPrice("");
+      //   setImage([]);
+      // };
+      useEffect(() => {
+        if (products && products.length > 0) {
+          // Assuming you want the _id of the first product in the array
+          const productId = products[0]._id;
+          setProductId(productId);
+        }
+      },[products])
     
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -142,16 +210,24 @@ const CreateEvents = () => {
         newForm.append("description", description);
         newForm.append("category", category);
         newForm.append("tags", tags);
+        newForm.append("productEvent", JSON.stringify(productEvent));
+        // console.log("productEvent", productEvent)
         newForm.append("originalPrice", originalPrice);
         newForm.append("discountPrice", discountPrice);
         newForm.append("stock", stock);
+        newForm.append("productId", productId || products._id || '');
+        // console.log("ini adalah productEvent id", productEvent._id)
         newForm.append("shopId", seller._id);
+        newForm.append("imageUrl", JSON.stringify(imageUrl))
+        newForm.append("imageUrl2", JSON.stringify(imageUrl2))
         newForm.append("start_date", startDate?.toISOString())
         newForm.append("finish_date", endDate?.toISOString())
-        console.log([...newForm.entries()]); 
+
+        console.log("Form Data:", [...newForm.entries()]);
+        // console.log([...newForm.entries()]); 
         axios.post(`http://localhost:5000/api/v2/event/create-event`,newForm, config)
         .then((res) => {
-          console.log(res)
+          // console.log(res)
           setName("");
           setDescription("");
           setCategory("");
@@ -167,36 +243,6 @@ const CreateEvents = () => {
           console.error("Error Response", error.response);
           console.error("Request Config", error.config);
         })
-        // try{
-        //   // dispatch(createProduct(newForm))
-        //   resetForm()
-        //   console.log(newForm)
-        // }catch(error){
-        //   console.error("Axios Error", error);
-        //   console.error("Error Response", error.response);
-        //   console.error("Request Config", error.response);
-        // }
-      //   try {
-      //     const result = await axios.post(
-      //       `http://localhost:5000/api/v2/product/create-product`,
-      //       newForm,
-      //       {
-      //         headers: {
-      //           "Content-Type": "multipart/form-data",
-      //         },
-      //       }
-      //     );
-      //     resetForm()
-  
-      //     console.log(result.data);
-      //     // Handle success, show a success message, etc.
-      // } catch (error) {
-      //     console.error("Axios Error", error);
-      //     console.error("Error Response", error.response);
-      //     console.error("Request Config", error.config);
-      //     // Handle error, show an error message, etc.
-      // }
-        // console.log(newForm)
     }
 
   return (
@@ -242,22 +288,44 @@ const CreateEvents = () => {
             <br/>
             <div>
                 <label className='pb-2'>
+                   Select your product  <span className='text-red-500'>*</span>
+                </label>
+                <select
+                className='w-full mt-2 border h-[35px] rounded-[5px]'
+                value={productEvent._id}
+                onChange={handleSelected}
+                >   
+                    <option value="">Choose a product</option>
+                    {
+                        products && products.map((i) => (
+                            <option
+                            value={i._id}
+                            key={i._id}
+                            >
+                                {i.name}
+                            </option>
+                        ))
+                    }
+                </select>
+            </div>
+            <div>
+                <label className='pb-2'>
                    Category  <span className='text-red-500'>*</span>
                 </label>
                 <select
                 className='w-full mt-2 border h-[35px] rounded-[5px]'
                 value={category}
-                // placeholder='chose a category...'
+                // onChange={handleSelected}
                 onChange={(e) => setCategory(e.target.value)}
                 >   
                     <option value="Chose a category">Choose a category</option>
-                    {
+                    {  
                         categoriesData && categoriesData.map((i) => (
                             <option
-                            value={i.title}
-                            key={i.title}
+                            value={i.category}
+                            key={i.category}
                             >
-                                {i.title}
+                                {i.category}
                             </option>
                         ))
                     }
@@ -373,22 +441,40 @@ const CreateEvents = () => {
               <label htmlFor='upload'>
                     <AiOutlinePlusCircle
                     size={30}
-                    className='mt-3'
+                    className={`${imageUrl2?.length ?'hidden' :  'mt-3'}`}
+                    // className='mt-3'
                     color='#555'
                     />
                 </label>
-                {image &&
-              image.map((selectImage, index) => {
+                {  imageUrl2?.length > 0 &&
+                  imageUrl2?.map((selectImage, index) => (
+                    <div key={index} className='relative'>
+                      <img
+                      src={selectImage.secure_url}
+                      // src={selectImage instanceof File ? URL.createObjectURL(selectImage) : selectImage}
+                      // src={typeof selectImage === 'string' ? selectImage : URL.createObjectURL(selectImage)}
+                      // src={selected instanceof File ? URL.createObjectURL(selectImage) : selectImage}
+                      height="200"
+                      alt={`product-${index}`}
+                      className='h-[120px] w-[120px] object-cover m-2'
+                      />
+                    </div>
+                  ))
+                }
+               
+                {
+              image?.map((selectImage, index) => {
                 return (
                   <div key={index} className='relative'>
                     <img
-                      src={URL.createObjectURL(selectImage)}
+                      // src={URL.createObjectURL(selectImage)}
+                      src={selectImage instanceof File ? URL.createObjectURL(selectImage) : selectImage}
                       height="200"
                       alt={`upload-${index}`}
                       className='h-[120px] w-[120px] object-cover m-2'
                     />
                     <button onClick={() => deleteHandler(selectImage)}
-                    className='absolute z-10 bottom-1 right-1'
+                    className={`absolute z-10 bottom-1 right-1`}
                     >
                       <FaTimes
                     //   size={10}

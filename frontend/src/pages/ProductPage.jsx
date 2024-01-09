@@ -12,7 +12,7 @@ const ProductPage = () => {
     const [data, setData] = useState([])
     const categoryData = searchParams.get("category")
     const { allProducts, isLoading } = useSelector((state) => state.products)
-    console.log("ProductPage", allProducts)
+    // console.log("ProductPage", allProducts)
     const dispatch = useDispatch()
 
 

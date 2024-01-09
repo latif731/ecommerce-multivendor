@@ -1,4 +1,5 @@
-import React, {useEffect} from "react"
+
+import React, {useEffect, useState} from "react"
 import './App.css';
 import {BrowserRouter, Navigate, Route, Routes, useNavigate} from "react-router-dom"
 import { 
@@ -10,11 +11,14 @@ import {
   BestSellingPage, 
   EventsPage, 
   FAQPage, 
-  Checkout, 
+  CheckoutPage, 
   Payment, 
   OrderSuccessPage, 
   ProductDetailsPage,
   ProfilePage,
+  PaymentPage,
+  OrderDetailsPage,
+  TrackOrderPage,
 } from './routes/Routes';
 import { 
   ShopCreatePage, 
@@ -28,7 +32,12 @@ import {
   ShopAllEvents,
   ShopAllCoupons,
   ShopWithDrawMoneyPage,
-  ShopPreviewPage
+  ShopPreviewPage,
+  ShopAllOrders,
+  ShopOrderDetails,
+  ShopAllRefunds,
+  ShopSettingsPage,
+  ShopInboxPage
 } from "./routes/ShopRoutes"
 import {ToastContainer} from "react-toastify"
 import axios from "axios"
@@ -39,17 +48,33 @@ import { loadUser } from "./redux/actions/user";
 import  ProtectedRoute  from "./routes/ProtectedRoute";
 import { useSelector } from "react-redux";
 import { loadSeller } from "./redux/actions/user";
+import { getAllProducts } from "./redux/actions/product";
+import { getAllEvents } from "./redux/actions/event";
 import SellerProtectedRoute from "./routes/sellerProtectedRoute";
-
-
+import {loadStripe} from "@stripe/stripe-js"
+import {
+  PaymentElement,
+  Elements,
+  useStripe,
+  useElements,
+} from "@stripe/react-stripe-js"
+import { server } from "./server";
 
 function App() {
 
+const [stripeApikey, setStripeApiKey] = useState("")
   // const isAuthenticated = true
+
+  async function getStripeApikey() {
+    const { data } = await axios.get(`${server}/payment/stripeapikey`);
+    setStripeApiKey(data.stripeApikey);
+  }
   const {loading, isAuthenticated} = useSelector((state) => state.user)
   console.log("user",isAuthenticated)
   const { isLoading, isSellerAuthenticated, seller } = useSelector((state) =>  state.seller)
   console.log("seller" , isSellerAuthenticated)
+
+
   useEffect(() => {
     // axios.get(`http://localhost:5000/api/v2/user/get-user`, 
     // {withCredentials: true})
@@ -60,14 +85,34 @@ function App() {
     // })
     Store.dispatch(loadUser())
     Store.dispatch(loadSeller())
-    if(isSellerAuthenticated === true){
-      return <Navigate to="/shop" replace/>
-    }
+    Store.dispatch(getAllProducts())
+    Store.dispatch(getAllEvents())
+    getStripeApikey()
   }, [])
+
+  // useEffect(() => {
+  //   if(isSellerAuthenticated) {
+  //     navigate('/shop', {replace: true})
+  //   }
+  // },[])
   
 
   return (
     <BrowserRouter>
+       {stripeApikey && (
+        <Elements stripe={loadStripe(stripeApikey)}>
+          <Routes>
+            <Route
+              path="/payment"
+              element={
+                <ProtectedRoute>
+                  <PaymentPage />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </Elements>
+      )}
       <Routes>
         <Route path='/' element={<HomePage/>}/>
         <Route path='/login' element={<LoginPage/>}/>
@@ -83,12 +128,11 @@ function App() {
         <ProtectedRoute 
         // isAuthenticated={isAuthenticated}
         >
-          <Checkout/>
-        </ProtectedRoute>
+          <CheckoutPage/>
+        </ProtectedRoute> 
         
         }/>
-        <Route path="/payment" element={<Payment/>}/>
-        <Route path="/order/success/:id" element={<OrderSuccessPage/>}/>
+        <Route path="/order/success" element={<OrderSuccessPage/>}/>
         <Route path="/profile" element={
           <ProtectedRoute 
           // isAuthenticated={isAuthenticated}
@@ -96,6 +140,30 @@ function App() {
             <ProfilePage/>
           </ProtectedRoute>
         }/>
+           <Route
+          path="profile/user/order/:id"
+          element={
+            <ProtectedRoute>
+              <OrderDetailsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+        path="profile/user/track-order/:id"
+          element={
+            <ProtectedRoute>
+              <TrackOrderPage/>
+            </ProtectedRoute>
+          }
+        />
+        
+
+
+
+
+
+
 
         {/* shop route */}
         <Route path="/shop/preview/:id" element={<ShopPreviewPage />} />
@@ -119,6 +187,24 @@ function App() {
           </SellerProtectedRoute>
 
         }/>
+          <Route path="/dashboard-all-orders" element={
+          <SellerProtectedRoute
+          // isSellerAuthenticated={isSellerAuthenticated}
+          // seller={seller}
+          >
+            <ShopAllOrders/> 
+          </SellerProtectedRoute>
+
+        }/>
+          <Route path="/dashboard-refunds" element={
+          <SellerProtectedRoute
+          // isSellerAuthenticated={isSellerAuthenticated}
+          // seller={seller}
+          >
+            <ShopAllRefunds/> 
+          </SellerProtectedRoute>
+
+        }/>
         <Route path="/dashboard-create-products" element={
           <SellerProtectedRoute
           // isSellerAuthenticated={isSellerAuthenticated}
@@ -134,6 +220,15 @@ function App() {
           // seller={seller}
           >
             <ShopAllProducts/> 
+          </SellerProtectedRoute>
+
+        }/>
+        <Route path="/order/:id" element={
+          <SellerProtectedRoute
+          // isSellerAuthenticated={isSellerAuthenticated}
+          // seller={seller}
+          >
+            <ShopOrderDetails/> 
           </SellerProtectedRoute>
 
         }/>
@@ -169,6 +264,22 @@ function App() {
           element={
             <SellerProtectedRoute>
               <ShopWithDrawMoneyPage />
+            </SellerProtectedRoute>
+          }
+        />
+           <Route
+          path="/dashboard-messages"
+          element={
+            <SellerProtectedRoute>
+              <ShopInboxPage />
+            </SellerProtectedRoute>
+          }
+        />
+           <Route
+          path="/dashboard-settings"
+          element={
+            <SellerProtectedRoute>
+              <ShopSettingsPage />
             </SellerProtectedRoute>
           }
         />

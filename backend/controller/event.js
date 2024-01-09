@@ -8,6 +8,8 @@ const fs = require("fs")
 const {isSellerAuthenticated, isAuthenticated, isAdmin} = require("../middleware/auth")
 const cloudinary = require("../cloudinary/cloudinaryconfig")
 const fileUpload = require("express-fileupload")
+const Product = require("../model/product")
+
 
 router.use(fileUpload())
 
@@ -21,19 +23,37 @@ router.post('/create-event', async (req, res, next) => {
             tags,
             originalPrice,
             discountPrice,
+            productEvent,
             stock,
             shop,
             shopId,
             start_date,
-            finish_date
+            finish_date,
+            productId,
+            imageUrl2
           } =  req.body
           console.log(req.body)
       // memeastikan 'image' adalah sebuah array, sebanyak data yang dapat di upload
       const shopData = await Shop.findById(shopId)
       if(!shopData){
-        return next(new ErrorHandler("Shop Id is Invalid", 400))
+        // return next(new ErrorHandler("Shop Id is Invalid", 400))
+        return res.status(400).json({
+          success: false,
+          error: "Shop Id is Invalid"
+        })
       }
-      const images = Object.values(req.files)
+
+      const productData = await Product.findById(productId);
+      if(!productData){
+        // return next(new ErrorHandler("Product Id is invalid", 400))
+        return res.status(400).json({
+          success: false,
+          error: "Product Id is invalid"
+        })
+      }
+
+
+      const images = req.files ? Object.entries(req.files) : [];
       // const images = []
       // for (const key in req.files) {
       //   if (req.files.hasOwnProperty(key)) {
@@ -43,10 +63,19 @@ router.post('/create-event', async (req, res, next) => {
       
       // const images = req.files.image
       console.log(images) 
-  
-      if (!images || images.length === 0) {
-      return res.status(400).json({ message: 'No images uploaded' });
-      }
+      
+
+
+      
+      // if (!images || images.length === 0) {
+      // return res.status(400).json({ message: 'No images uploaded' });
+      // } 
+      // else {
+      //   const images = Object.values(req.files)
+      //   console.log(images)
+      // }
+
+
   
       const event = new Event({
         name,
@@ -57,16 +86,39 @@ router.post('/create-event', async (req, res, next) => {
         discountPrice,
         stock,
         shopId,
+        productId,
+        productEvent : productData,
         shop : shopData,
         imageUrl:[],
         start_date,
+        imageUrl2,
         finish_date
       })
   
       console.log(event)
-  
+
+      if(event.start_date < new Date() && event.finish_date > new Date()) {
+        await Product.findByIdAndUpdate(
+          productData._id,
+          {
+            $set:{
+              originalPrice: event.originalPrice,
+              discountPrice: event.discountPrice,
+            }
+          },
+          {
+            new:true
+          }
+        )
+      }
+
+
+      if (event.imageUrl2 && event.imageUrl2.length > 0) {
+        event.imageUrl = [];
+      }else{
       const imageUrls = await Promise.all(
-        images.map(async (image) => {
+        // console.log("image url", imageUrls)
+        images.map(async ([key, image]) => {
           try {
             // Use the mv() method to move the file to the temporary location
             const tempPath = `./temp/${image.name}`;
@@ -98,11 +150,17 @@ router.post('/create-event', async (req, res, next) => {
         // menyimpan array gambar URLs ke dalam product dokumen
         if (imageUrls.every((url) => url !== null)) {
           event.imageUrl = imageUrls;
-          await event.save();
-          res.status(200).json({ message: 'Product created successfully' });
-        } else {
-          res.status(500).json({ message: 'Failed to upload one or more images' });
+          event.imageUrl2 = JSON.parse(req.body.imageUrl2 || '[]');
+          // res.status(200).json({ message: 'Product created successfully' });
+        }else {
+          // return res.status(500).json({ message: 'Failed to upload one or more images' });
+          res.status(400).json({ message: 'Failed to upload one or more images' });
         }
+      
+      }
+        
+        await event.save();
+        res.status(200).json({ message: 'Product created successfully' });
       // ... (other code)
     } catch (err) {
       console.error(err);
@@ -119,7 +177,11 @@ router.get("/get-all-events", async(req,res,next) => {
       events
     })
   }catch(error){
-    return next(new ErrorHandler(error, 400))
+    // return next(new ErrorHandler(error, 400))
+    res.status(400).json({
+      success: false,
+      error: error
+    })
   }
 })
 
@@ -133,7 +195,11 @@ router.get("/get-all-event/:id", catchAsyncError(async(req, res, next) => {
             events
         })
     }catch(error){
-        return next(new ErrorHandler(error, 400))
+        // return next(new ErrorHandler(error, 400))
+        res.status(400).json({
+            success: false,
+            error: error
+        })
     }
 }))
 
@@ -161,7 +227,11 @@ catchAsyncError(async(req,res,next) => {
         const event = await Event.findByIdAndDelete(EventId)
 
         if(!event){
-            return next (new ErrorHandler(`Event not found with this id!`, 500))
+            // return next (new ErrorHandler(`Event not found with this id!`, 500))
+            res.status(400).json({
+                success: false,
+                error: "Event not found with this id!"
+            })
         }
 
         res.status(201).json({
@@ -170,7 +240,11 @@ catchAsyncError(async(req,res,next) => {
         })
 
     }catch (error) {
-        return next(new ErrorHandler(error, 400))
+        // return next(new ErrorHandler(error, 400))
+        res.status(400).json({
+            success: false,
+            error: error
+        })
     }
 }))
 
@@ -189,7 +263,11 @@ router.get(
         events
       })
     }catch(error){
-      return next(new ErrorHandler(error.message, 500))
+      // return next(new ErrorHandler(error.message, 500))
+      res.status(500).json({
+        success: false,
+        error: error.message
+      })
     }
   })
   )

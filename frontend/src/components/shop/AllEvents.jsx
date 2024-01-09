@@ -11,7 +11,7 @@ import Loader from '../layout/Loader'
 
 const AllEvents = () => {
     const {events, isLoading} = useSelector((state) => state?.events || {} )
-    console.log("events",events)
+    // console.log("events",events)
     const {seller} = useSelector((state) => state.seller )
 
     const dispatch = useDispatch()

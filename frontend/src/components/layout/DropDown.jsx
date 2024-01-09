@@ -6,7 +6,7 @@ import {MdOutlineKeyboardArrowDown} from "react-icons/md"
 const DropDown = ({categoriesData, setDropDown}) => {
     const navigate = useNavigate()
     const submitHandle = (i) => {
-        navigate(`/products?category=${i.title}`);
+        navigate(`/products?category=${i.category}`);
         setDropDown(false)
         window.location.reload();
     }
@@ -31,7 +31,7 @@ const DropDown = ({categoriesData, setDropDown}) => {
                     />
                     <h3
                     className='m-3 cursor-pointer select-none'
-                    >{i.title}</h3>
+                    >{i.category}</h3>
                 </div>
             ))
         }

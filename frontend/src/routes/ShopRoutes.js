@@ -11,6 +11,11 @@ import ShopAllCoupons from "../pages/Shop/ShopAllCoupons"
 // import ShopWithDrawMoneyPage from "../pages/Shop/ShopWithDrawMoneyPage"
 import ShopWithDrawMoneyPage from "../pages/Shop/ShopWithDrawMoneyPage"
 import ShopPreviewPage from "../pages/Shop/ShopPreviewPage"
+import ShopAllOrders from "../pages/Shop/ShopAllOrders"
+import ShopOrderDetails from "../pages/Shop/ShopOrderDetails"
+import ShopAllRefunds from "../pages/Shop/ShopAllRefunds"
+import ShopSettingsPage from "../pages/Shop/ShopSettingsPage"
+import ShopInboxPage from "../pages/Shop/ShopInboxPage"
 
 
 export {
@@ -25,5 +30,10 @@ export {
     ShopAllEvents,
     ShopAllCoupons,
     ShopWithDrawMoneyPage,
-    ShopPreviewPage
+    ShopPreviewPage,
+    ShopAllOrders,
+    ShopOrderDetails,
+    ShopAllRefunds,
+    ShopSettingsPage,
+    ShopInboxPage
 }

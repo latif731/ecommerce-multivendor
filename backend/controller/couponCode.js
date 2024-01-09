@@ -42,7 +42,11 @@ router.post(
       console.log(req.body.name)
 
       if (isCouponCodeExists.length !== 0) {
-        return next(new ErrorHandler("Coupon code already exists!", 400));
+        // return next(new ErrorHandler("Coupon code already exists!", 400));
+        res.status(400).json({
+          success: false,
+          message: "Coupon code already exists!",
+        });
       }
 
       const couponCode = await CouponCode.create(req.body);
@@ -52,7 +56,11 @@ router.post(
         couponCode,
       });
     } catch (error) {
-      return next(new ErrorHandler(error, 400));
+      // return next(new ErrorHandler(error, 400));
+      res.status(400).json({
+        success: false,
+        message: error.message,
+      });
     }
   })
 );
@@ -67,7 +75,11 @@ router.get("/get-coupon/:id", isSellerAuthenticated, catchAsyncError(async(req,r
       couponCodes
     })
   }catch(error){
-    return next(new ErrorHandler(error, 400))
+    // return next(new ErrorHandler(error, 400))
+    res.status(400).json({
+      success: false,
+      message: error.message
+    })
   }
 }))
 
@@ -86,7 +98,11 @@ router.delete("/delete-coupon/:id", isSellerAuthenticated, catchAsyncError(async
     })
 
   }catch(error){
-    return next(new ErrorHandler(error, 400))
+    // return next(new ErrorHandler(error, 400))
+    res.status(400).json({
+      success: false,
+      message: error.message
+    })
   }
 }))
 
@@ -103,7 +119,11 @@ router.get(
         couponCode,
       });
     } catch (error) {
-      return next(new ErrorHandler(error, 400));
+      // return next(new ErrorHandler(error, 400));
+      res.status(400).json({
+        success: false,
+        message: error.message,
+      });
     }
   })
 );

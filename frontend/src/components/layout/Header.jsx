@@ -25,11 +25,13 @@ import { RxCross1, RxCross2 } from 'react-icons/rx'
 
 const Header = ({activeHeading}) => {
     const {isAuthenticated, user} = useSelector((state) => state.user)
+    const {isSellerAuthenticated} = useSelector((state) => state.seller)
+    // console.log("Header", user)
     const { wishlist } = useSelector((state) => state.wishlist)
     const {cart} = useSelector((state) => state.cart)
-    console.log("cart",cart)
+    // console.log("cart",cart)
     const {allProducts} = useSelector((state) =>  state.products)
-    console.log("Header",allProducts)
+    // console.log("Header",allProducts)
     // console.log("header" ,user)
     // console.log(isAuthenticated)
     
@@ -46,7 +48,7 @@ const Header = ({activeHeading}) => {
     // console.log(isAuthenticated)
     const [searchTerm, setSearchTerm] = useState("")
     const [searchData, setSearchData] = useState(null)
-    console.log("search",searchData)
+    // console.log("search",searchData)
     // console.log("searchData",searchData)
     const [active, setActive] = useState(false)
     const [openCart, setOpenCart] = useState(false)
@@ -116,7 +118,7 @@ const Header = ({activeHeading}) => {
             <div className={`${styles.button}`}>
                 <Link to={"/shop-create"}>
                     <h1 className='text-[#fff] flex items-center'>
-                        Become a seller <IoMdArrowDropright size={25}/> 
+                    { isSellerAuthenticated ? "Go Dashboard" : "Become a seller" } <IoMdArrowDropright size={25}/> 
                     </h1>
                     
                 </Link>
@@ -192,7 +194,7 @@ const Header = ({activeHeading}) => {
                             <div className="relative cursor-pointer mr-[15px]">
                                 {isAuthenticated ? (
                                     <Link to={"/profile"} >
-                                        <img src={user.avatar.url}
+                                        <img src={user?.avatar?.url}
                                         // style={{width:"50px"}}
                                         className='w-[40px] h-[40px] rounded-full'
                                         />
@@ -323,7 +325,7 @@ const Header = ({activeHeading}) => {
                             <div>
                                 <Link to={"/profile"}>
                         <img 
-                        src={user.avatar.url}
+                        src={user?.avatar?.url}
                         className='w-[70px] h-[70px] rounded-full border-[3px] border-[#40fa56]'
                         />
                                 </Link>

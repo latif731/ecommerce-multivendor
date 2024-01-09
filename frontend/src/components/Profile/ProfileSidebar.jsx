@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom'
 import axios from "axios"
 import { server } from '../../server'
 import { toast } from "react-toastify"
+import { CiLock } from "react-icons/ci";
 
 
 const ProfileSidebar = ({active, setActive}) => {
@@ -100,7 +101,7 @@ const ProfileSidebar = ({active, setActive}) => {
        <div className='flex items-center cursor-pointer w-full mb-8'
        onClick={() =>  setActive(8)}
        >  
-          <FaRegAddressCard size={20} color={active === 8 ? "red" : ""}/>
+          <CiLock size={20} color={active === 8 ? "red" : ""}/>
           <span
           className={`pl-3 ${active === 8 ? "text-[red]" : ""} 800px:block hidden`}
           >
@@ -111,7 +112,7 @@ const ProfileSidebar = ({active, setActive}) => {
        onClick={logoutHandler}
        >  
           <BiLogOutCircle size={20} color={"red"}/>
-          <span
+        <span
           className={`pl-3  text-[red] 800px:block hidden`}
           >
             Log out

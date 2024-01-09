@@ -28,7 +28,11 @@ router.post("/create-withdraw-request", isSellerAuthenticated, catchAsyncError(a
                 success:true,
             })
         }catch(error){
-            return next(new ErrorHandler(error.message, 500))
+            // return next(new ErrorHandler(error.message, 500))
+            res.status(500).json({
+                success: false,
+                message: error.message
+            })
         }
 
         const withdraw = await Withdraw.create(data)
@@ -40,7 +44,11 @@ router.post("/create-withdraw-request", isSellerAuthenticated, catchAsyncError(a
         await shop.save()
 
     }catch(error){
-        return next(new ErrorHandler(error.message, 500))
+        // return next(new ErrorHandler(error.message, 500))
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
     }
 }))
 
@@ -55,7 +63,11 @@ router.get("/get-all-withdraw-request", isAuthenticated, isAdmin("Admin"), catch
         })
 
     }catch(error){
-        return next(new ErrorHandler(error.message, 500))
+        // return next(new ErrorHandler(error.message, 500))
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
     }
 }))
 
@@ -92,7 +104,11 @@ router.put("/update-withdraw-request/:id", isAuthenticated, isAdmin("Admin"), ca
                 message: `Hello ${seller.name}, Your withdraw request of ${withdraw.amount}$ id on the way. Delivery time depends your bank's rules it usually takes 3days to 7days `
             })
         }catch(error){
-            return next(new ErrorHandler(error.message, 500))
+            // return next(new ErrorHandler(error.message, 500))
+            res.status(500).json({
+                success: false,
+                message: error.message
+            })
         }
 
         res.status(201).json({
@@ -101,6 +117,10 @@ router.put("/update-withdraw-request/:id", isAuthenticated, isAdmin("Admin"), ca
         })
 
     }catch(error){
-        return next(new ErrorHandler(error.message, 500))
+        // return next(new ErrorHandler(error.message, 500))
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
     }
 }))

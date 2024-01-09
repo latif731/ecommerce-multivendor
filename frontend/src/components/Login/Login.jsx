@@ -3,9 +3,11 @@ import {AiOutlineEyeInvisible} from "react-icons/ai"
 import {AiOutlineEye} from "react-icons/ai"
 import styles from '../../styles/styles'
 import { Link, useNavigate } from "react-router-dom"
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import axios from 'axios'
 import { toast } from "react-toastify"
+import { refreshAccessToken } from '../../redux/actions/user'
+import Axios from '../../redux/axios/axiosInterceptors'
 
 
 
@@ -15,6 +17,7 @@ const Login = () => {
     const [password, setPassword] = useState("")
     const [visible, setVisible]= useState(false)
    const navigate = useNavigate()
+   const dispatch = useDispatch()
 //    useEffect(() => {
 //     if (isAuthenticated) {
 //       // Jika isAuthenticated adalah true, arahkan pengguna ke halaman utama
@@ -25,19 +28,90 @@ const Login = () => {
     
     // console.log("ini email",email)
 
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault()
+    //     await axios.post(`http://localhost:5000/api/v2/user/login-user`, {
+    //         email,
+    //         password
+    //     }, {withCredentials:true}).then((res) => {
+    //         toast.success("Login Success!");
+    //         navigate("/")
+    //         window.location.reload(true)
+    //     }).catch((err) => {
+    //         toast.error("Wrong email or password")
+    //     })
+    // }
+
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    
+    //     try {
+    //       await axios.post(
+    //         'http://localhost:5000/api/v2/user/login-user',
+    //         {
+    //           email,
+    //           password,
+    //         },
+    //         { withCredentials: true }
+    //       );
+    
+    //       toast.success('Login Success!');
+    //       navigate('/');
+    //       window.location.reload(true);
+    //     } catch (error) {
+    //       if (error.response.status === 401) {
+    //         // If the status code is 401, try to refresh the access token
+    //         try {
+    //           await dispatch(refreshAccessToken());
+    //           // If the token refresh is successful, retry the login
+    //           await axios.post(
+    //             'http://localhost:5000/api/v2/user/login-user',
+    //             {
+    //               email,
+    //               password,
+    //             },
+    //             { withCredentials: true }
+    //           );
+    
+    //           toast.success('Login Success!');
+    //           navigate('/');
+    //           window.location.reload(true);
+    //         } catch (refreshError) {
+    //           // If refreshing fails, log the user out or handle it accordingly
+    //           console.error('Failed to refresh token', refreshError);
+    //           toast.error('Failed to refresh token. Please log in again.');
+    //           // Log out user, redirect, or handle the situation as needed
+    //           // Example: dispatch(logoutAction());
+    //         }
+    //       } else {
+    //         // Handle other errors
+    //         console.error('Login Error', error);
+    //         toast.error('Wrong email or password');
+    //       }
+    //     }
+    //   };
+
     const handleSubmit = async (e) => {
-        e.preventDefault()
-        await axios.post(`http://localhost:5000/api/v2/user/login-user`, {
-            email,
-            password
-        }, {withCredentials:true}).then((res) => {
-            toast.success("Login Success!");
-            navigate("/")
-            window.location.reload(true)
-        }).catch((err) => {
-            toast.error("Wrong email or password")
-        })
-    }
+        e.preventDefault();
+    
+        try {
+          await Axios.post(
+            'http://localhost:5000/api/v2/user/login-user',
+            {
+              email,
+              password,
+            },
+            { withCredentials: true }
+          );
+    
+          toast.success('Login Success!');
+          navigate('/');
+          window.location.reload(true);
+        } catch (error) {
+          console.error('Login Error', error);
+          toast.error('Wrong email or password');
+        }
+      };
 
   return (
     <div className='min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8'>

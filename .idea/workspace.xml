@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="c2c11848-0201-46d3-893e-acf9cad836ce" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/backend/controller/midtransPayment.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/controller/order.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/controller/payment.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/midtrans/midtransConfig.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/model/midtransPayment.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/model/order.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/Checkout/Checkout.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/Checkout/CheckoutSteps.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/Payment/Payment.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/carousel/Carousel.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/carousel/carousel.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/pages/CheckoutPage.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/pages/PaymentPage.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/redux/actions/order.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/redux/axios/axiosInterceptors.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/redux/reducers/order.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/config/.env" beforeDir="false" afterPath="$PROJECT_DIR$/backend/config/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/controller/event.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/controller/event.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/controller/product.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/controller/product.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/controller/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/controller/user.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/model/event.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/model/event.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/model/product.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/model/product.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/model/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/model/user.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/utils/ErrorHandler.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/utils/ErrorHandler.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/utils/jwtToken.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/utils/jwtToken.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/Dashboard/layout/DashboardSidebar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Dashboard/layout/DashboardSidebar.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/Login/Login.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Login/Login.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/Products/ProductDetails.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Products/ProductDetails.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/Profile/ProfileContent.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Profile/ProfileContent.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/Profile/ProfileSidebar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Profile/ProfileSidebar.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/Wishlist/Wishlist.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Wishlist/Wishlist.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/cart/Cart.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/cart/Cart.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/events/EventCard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/events/EventCard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/events/Events.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/events/Events.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/layout/DropDown.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/layout/DropDown.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/layout/Header.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/layout/Header.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/layout/Navbar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/layout/Navbar.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/route/Categories/Categories.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/route/Categories/Categories.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/route/ProductCard/ProductCard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/route/ProductCard/ProductCard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/shop/AllEvents.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/shop/AllEvents.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/shop/CreateEvents.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/shop/CreateEvents.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Checkout.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/EventsPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/EventsPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/OrderSuccessPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/OrderSuccessPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Payment.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ProductDetailsPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/ProductDetailsPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ProductPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/ProductPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Shop/ShopDashboardPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Shop/ShopDashboardPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/redux/actions/event.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/redux/actions/event.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/redux/actions/product.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/redux/actions/product.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/redux/actions/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/redux/actions/user.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/redux/reducers/product.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/redux/reducers/product.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/redux/reducers/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/redux/reducers/user.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/redux/store.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/redux/store.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/routes/Routes.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/routes/Routes.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/routes/ShopRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/routes/ShopRoutes.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/static/data.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/static/data.js" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 6
+}]]></component>
+  <component name="ProjectId" id="2ag2cxbpd4bEriP40Kn56F6jrwb" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "kotlin-language-version-configured": "true"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="c2c11848-0201-46d3-893e-acf9cad836ce" name="Changes" comment="" />
+      <created>1704725988865</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1704725988865</updated>
+    </task>
+    <servers />
+  </component>
+</project>

@@ -169,7 +169,7 @@ const CartSingle = ({data, quantityChangeHandler, removeFromCartHandler}) => {
                 <img 
                 // src='https://cdn.eraspace.com/media/catalog/product/i/p/iphone_14_pro_deep_purple_1_1_1.jpg'
                 className='w-[100px] ml-2 mr-2 h-min rounded-[5px]'
-                src={`${data.imageUrl[0].secure_url}`}
+                src={`${data?.imageUrl[0]?.secure_url || data?.imageUrl2[0]?.secure_url}`}
                 />
                <div className='pl-[5px]'>
                     <h1>{data.name}</h1>
