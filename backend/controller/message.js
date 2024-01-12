@@ -3,10 +3,13 @@ const express = require("express")
 const catchAsyncError = require("../middleware/catchAsyncError")
 const router = express.Router()
 const {isAuthenticated, isSellerAuthenticated, isAdmin} = require("../middleware/auth")
-
+const cloudinary = require("../cloudinary/cloudinaryconfig")
 // create new message
 
-router.post("/create-new-message",isSellerAuthenticated, catchAsyncError(async(req,res,next) => {
+router.post("/create-new-message",
+// ,isSellerAuthenticated, 
+// isAuthenticated, 
+catchAsyncError(async(req,res,next) => {
     try{
         messageData = req.body
 
@@ -49,6 +52,23 @@ router.post("/create-new-message",isSellerAuthenticated, catchAsyncError(async(r
 
 
 
+// get all messages with conversation
+router.get("/get-all-messages/:id", catchAsyncError(async(req,res,next) => {
+    try{
+        const messages = await Messages.find({
+            conversationId: req.params.id
+        })
 
+        res.status(201).json({
+            success: true,
+            messages,
+        })
+    }catch(error){
+     return    res.status(500).json({
+            success: false,
+            error: error.message
+        })
+    }
+}))
 
 module.exports = router

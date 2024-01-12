@@ -19,6 +19,7 @@ import {
   PaymentPage,
   OrderDetailsPage,
   TrackOrderPage,
+  UserInboxPage
 } from './routes/Routes';
 import { 
   ShopCreatePage, 
@@ -138,6 +139,13 @@ const [stripeApikey, setStripeApiKey] = useState("")
           // isAuthenticated={isAuthenticated}
           >
             <ProfilePage/>
+          </ProtectedRoute>
+        }/>
+        <Route path="/inbox" element={
+          <ProtectedRoute 
+          // isAuthenticated={isAuthenticated}
+          >
+            <UserInboxPage/>
           </ProtectedRoute>
         }/>
            <Route

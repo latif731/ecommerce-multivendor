@@ -14,6 +14,7 @@ import ProductDetailsPage from "../pages/ProductDetailsPage"
 import ProfilePage from "../pages/ProfilePage"
 import OrderDetailsPage from "../pages/OrderDetailsPage"
 import TrackOrderPage from "../pages/TrackOrderPage"
+import UserInboxPage from "../pages/UserInboxPage"
 
 
 export {
@@ -32,5 +33,6 @@ export {
     ProductDetailsPage,
     ProfilePage,
     OrderDetailsPage,
-    TrackOrderPage
+    TrackOrderPage,
+    UserInboxPage
 }
